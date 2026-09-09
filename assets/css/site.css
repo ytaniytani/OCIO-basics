@@ -30,7 +30,7 @@
   --radius: 10px;
   --shadow: 0 1px 2px rgba(28, 24, 20, .06), 0 6px 18px rgba(28, 24, 20, .05);
 
-  --measure: 44rem;
+  --measure: 60rem;
   --sans: system-ui, -apple-system, "Hiragino Sans", "Hiragino Kaku Gothic ProN",
           "Noto Sans JP", "Yu Gothic UI", Meiryo, sans-serif;
   --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Noto Sans Mono", monospace;
