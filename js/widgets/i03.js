@@ -52,7 +52,7 @@ export default function i03(mount) {
   });
   const logToggle = toggle({
     label: '横軸を対数にする',
-    note: '目もりを 1、10、100 と「何倍か」で刻みます。Log の形が見えるようになります',
+    note: '目もりが 0.001、0.01、0.1、1 と10倍ごとになります(右端だけ 16)。Log の形が見えるようになります',
     onChange: (v) => { logX = v; draw(); },
   });
   w.controls.append(pick.root, logToggle.root);

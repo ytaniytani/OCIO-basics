@@ -427,7 +427,7 @@ export function sceneSkinRamp(width = 640, height = 200) {
 // ---------------------------------------------------------------------------
 
 export const SCENES = {
-  window: { label: '逆光の部屋', make: sceneWindow, note: '室内と窓の外で明るさが40万倍ちがう' },
+  window: { label: '逆光の部屋', make: sceneWindow, note: '室内と窓の外で明るさが約1万倍ちがう' },
   chart: { label: 'カラーチャート', make: sceneChart, note: '色ごとの変化を見くらべる' },
   sunset: { label: '夕焼け', make: sceneSunset, note: 'なめらかなグラデーション' },
   cgball: { label: 'CGの球', make: sceneCGBall, note: '光の計算がそのまま入っている' },
