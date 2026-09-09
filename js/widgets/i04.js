@@ -146,21 +146,19 @@ const PAD = 42;
 export default function i04(mount) {
   const w = createWidget(mount, {
     title: '使える色の広さをくらべる',
-    aim: '馬蹄形が「人の目に見える色ぜんぶ」。その中の三角形が、それぞれの色空間で表せる範囲です。',
+    aim: '馬蹄形が「人の目に見える色ぜんぶ」。その中の三角形が、それぞれの色空間で表せる範囲です。表の「使いみち」には身近な例も書いてあります。',
+    wide: true,
   });
-
-  const examplesBox = el('div', { class: 'gamut-examples' });
 
   const canvas = el('canvas', {
     width: SIZE, height: SIZE, class: 'cie-canvas',
     role: 'img',
     'aria-label': '色度図。人の目に見える色の範囲を表す馬蹄形の中に、色空間ごとの三角形が重ねてあります。',
   });
-  w.view.appendChild(canvas);
-
-  const table = el('div', { class: 'table-wrap' });
-  w.view.appendChild(table);
-  w.view.appendChild(examplesBox);
+  const table = el('div', { class: 'table-wrap cie-table-col' });
+  // 図と表を横にならべます。図をここで固定サイズにしておくと、
+  // 表がとなりでどれだけ幅を取っても、図がぼやけません。
+  w.view.appendChild(el('div', { class: 'cie-layout' }, [canvas, table]));
 
   const active = new Set(['sRGB', 'Rec2020']);
   let cvd = 'none';
@@ -365,7 +363,6 @@ export default function i04(mount) {
     }
 
     drawTable();
-    drawExamples();
     if (!probe) {
       w.say('図の中をタップすると、その色をどの色空間で出せるかが分かります。');
     }
@@ -378,47 +375,36 @@ export default function i04(mount) {
     return rgb.every((v) => v >= -0.0005);
   }
 
-  function drawExamples() {
-    examplesBox.replaceChildren(
-      el('h4', { class: 'gamut-examples-title', text: '具体例で見る、色域の使われかた' }),
-      el('div', { class: 'gamut-cards' }, GAMUT_LIST.map((g) => {
-        const G = GAMUTS[g.key];
-        const ex = EXAMPLES[g.key];
-        const on = active.has(g.key);
-        return el('div', { class: 'gamut-card' + (on ? ' is-on' : '') }, [
-          el('div', { class: 'gamut-card-head' }, [
-            el('span', { class: 'legend-chip', style: `background:${g.color}` }),
-            el('span', { class: 'gamut-card-name', text: G.label }),
-          ]),
-          el('p', { class: 'gamut-card-era', text: ex.era }),
-          el('ul', { class: 'gamut-card-list' }, ex.items.map((t) => el('li', { text: t }))),
-        ]);
-      })),
-    );
-  }
-
   function drawTable() {
     const rows = GAMUT_LIST.map((g) => {
       const G = GAMUTS[g.key];
       const on = active.has(g.key);
       const p = G.primaries;
       return el('tr', { class: on ? '' : 'row-off' }, [
-        el('td', {}, [
+        el('td', { class: 'cie-name-cell' }, [
           el('span', { class: 'legend-chip', style: `background:${g.color}` }),
           el('span', { text: ' ' + G.label }),
         ]),
-        el('td', { text: G.note }),
-        el('td', { class: 'num', text: `${p.red[0]}, ${p.red[1]}` }),
-        el('td', { class: 'num', text: `${p.green[0]}, ${p.green[1]}` }),
-        el('td', { class: 'num', text: `${p.blue[0]}, ${p.blue[1]}` }),
+        el('td', { class: 'cie-use-cell' }, [
+          el('p', { class: 'cie-use-lead' }, [
+            el('b', { text: G.note }),
+            el('span', { class: 'cie-use-era', text: ' ・ ' + EXAMPLES[g.key].era }),
+          ]),
+          el('ul', { class: 'cie-use-list' }, EXAMPLES[g.key].items.map((t) => el('li', { text: t }))),
+        ]),
+        // 赤・緑・青の原色を1つの列にまとめます。3列に分けるより幅を取らないので、
+        // 「使いみち」列に広さを回せます。
+        el('td', { class: 'num cie-primary-cell' }, [
+          el('div', { class: 'cie-primary-row' }, [el('span', { text: '赤' }), el('span', { text: `${p.red[0]}, ${p.red[1]}` })]),
+          el('div', { class: 'cie-primary-row' }, [el('span', { text: '緑' }), el('span', { text: `${p.green[0]}, ${p.green[1]}` })]),
+          el('div', { class: 'cie-primary-row' }, [el('span', { text: '青' }), el('span', { text: `${p.blue[0]}, ${p.blue[1]}` })]),
+        ]),
       ]);
     });
     table.replaceChildren(el('table', {}, [
       el('thead', {}, [el('tr', {}, [
         el('th', { text: '色空間' }), el('th', { text: '使いみち' }),
-        el('th', { class: 'num', text: '赤 (x, y)' }),
-        el('th', { class: 'num', text: '緑 (x, y)' }),
-        el('th', { class: 'num', text: '青 (x, y)' }),
+        el('th', { class: 'num', text: '原色 (x, y)' }),
       ])]),
       el('tbody', {}, rows),
     ]));
