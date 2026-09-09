@@ -85,6 +85,61 @@ const GAMUT_LIST = [
   { key: 'AP0', color: '#ff8f8f', dash: [1, 4] },
 ];
 
+
+/**
+ * 色空間ごとの、身近な製品や作品の例。
+ *
+ * ここに書く固有名詞は、確度の高いものだけに絞っています。
+ * 「たぶん使っている」レベルの噂は書きません。
+ *   ・年号やハードの発売年   → 公式に発表されている事実
+ *   ・HDR対応の有無         → メーカーや制作者が公表している仕様
+ *   ・ACES / Netflix の関係 → 業界内で技術書類として公開されている話
+ * 個々の映画がACESを使ったかどうかは、正式発表がある場合を除いて書きません。
+ */
+const EXAMPLES = {
+  sRGB: {
+    era: '1996年ごろ〜。いちばん歴史が長い規格',
+    items: [
+      'ふつうのパソコンやスマホの画面、Webサイトの写真(JPEGなど)',
+      'HDRが無い時代のゲーム機: プレイステーション3(2006年/平成18年)、Wii、Xbox 360',
+      'Nintendo Switch(2017年/平成29年〜)も、画面に出す色はこの範囲',
+    ],
+  },
+  P3D65: {
+    era: '2015年ごろ〜。比かく的あたらしい規格',
+    items: [
+      'iPhone 7(2016年/平成28年)以降のiPhoneや、Macの画面',
+      'iPhoneで撮った写真・動画は、この広さの色で保存されている',
+      'スマホでNetflixやYouTubeを見るときも、この範囲の色が使われることが多い',
+    ],
+  },
+  Rec2020: {
+    era: '2012年に決まった。4K・8KやHDR用の規格',
+    items: [
+      'NHKの8Kスーパーハイビジョン放送(2018年/平成30年〜)',
+      'Ultra HD Blu-ray(UHD BD)ディスクの規格',
+      'HDR対応のPS5(2020年/令和2年〜)ソフト:「グランツーリスモ7」「ホライゾン フォービドゥン ウエスト」「ラチェット&クランク パラレル・トラブル」など',
+      'NetflixやApple TV+などの「4K HDR」と書かれた配信作品',
+    ],
+  },
+  AP1: {
+    era: '2014年ごろ〜。映画・CG業界の作業用',
+    items: [
+      '映画やアニメのCGを作る現場(特撮・VFXスタジオ、CGアニメスタジオ)',
+      'Blenderのような3DCGソフトで、色を計算するときの内部の空間',
+      '広いけれど扱いやすいバランスで作られている',
+    ],
+  },
+  AP0: {
+    era: '2014年、アカデミー賞を主催する団体(AMPAS)が作った',
+    items: [
+      '映画の完成データを、何十年も先まで保存しておくための規格',
+      'Netflixは自社が制作する「Netflixオリジナル」作品について、ACESを使った色の作業のやりかたを、公式の技術書類で条件にしている',
+      '人の目に見えない色まで含む、いちばん広い入れもの',
+    ],
+  },
+};
+
 const SIZE = 460;
 const PAD = 42;
 
@@ -93,6 +148,8 @@ export default function i04(mount) {
     title: '使える色の広さをくらべる',
     aim: '馬蹄形が「人の目に見える色ぜんぶ」。その中の三角形が、それぞれの色空間で表せる範囲です。',
   });
+
+  const examplesBox = el('div', { class: 'gamut-examples' });
 
   const canvas = el('canvas', {
     width: SIZE, height: SIZE, class: 'cie-canvas',
@@ -103,6 +160,7 @@ export default function i04(mount) {
 
   const table = el('div', { class: 'table-wrap' });
   w.view.appendChild(table);
+  w.view.appendChild(examplesBox);
 
   const active = new Set(['sRGB', 'Rec2020']);
   let cvd = 'none';
@@ -307,6 +365,7 @@ export default function i04(mount) {
     }
 
     drawTable();
+    drawExamples();
     if (!probe) {
       w.say('図の中をタップすると、その色をどの色空間で出せるかが分かります。');
     }
@@ -317,6 +376,25 @@ export default function i04(mount) {
     const Y = 1, X = (x / y) * Y, Z = ((1 - x - y) / y) * Y;
     const rgb = matApply(xyzToGamut(key), [X, Y, Z]);
     return rgb.every((v) => v >= -0.0005);
+  }
+
+  function drawExamples() {
+    examplesBox.replaceChildren(
+      el('h4', { class: 'gamut-examples-title', text: '具体例で見る、色域の使われかた' }),
+      el('div', { class: 'gamut-cards' }, GAMUT_LIST.map((g) => {
+        const G = GAMUTS[g.key];
+        const ex = EXAMPLES[g.key];
+        const on = active.has(g.key);
+        return el('div', { class: 'gamut-card' + (on ? ' is-on' : '') }, [
+          el('div', { class: 'gamut-card-head' }, [
+            el('span', { class: 'legend-chip', style: `background:${g.color}` }),
+            el('span', { class: 'gamut-card-name', text: G.label }),
+          ]),
+          el('p', { class: 'gamut-card-era', text: ex.era }),
+          el('ul', { class: 'gamut-card-list' }, ex.items.map((t) => el('li', { text: t }))),
+        ]);
+      })),
+    );
   }
 
   function drawTable() {

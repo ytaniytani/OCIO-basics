@@ -922,3 +922,35 @@ td.num, th.num { white-space: nowrap; }
 .test-name { font-weight: 700; }
 .test-detail { color: var(--ink-soft); font-size: .8rem; font-family: var(--mono); grid-column: 2 / -1; }
 @media (min-width: 46rem) { .test-detail { grid-column: 3; } }
+
+/* ---------- 色空間の具体例カード(I-04) ---------- */
+
+.gamut-examples { margin-top: 1.2rem; }
+.gamut-examples-title {
+  margin: 0 0 .7rem;
+  font-size: .92rem;
+  font-weight: 700;
+  color: var(--ink-soft);
+}
+.gamut-cards {
+  display: grid;
+  gap: .7rem;
+  grid-template-columns: 1fr;
+}
+@media (min-width: 40rem) {
+  .gamut-cards { grid-template-columns: repeat(2, 1fr); }
+}
+.gamut-card {
+  padding: .75rem .9rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--bg-raised);
+  opacity: .55;
+  transition: opacity .15s;
+}
+.gamut-card.is-on { opacity: 1; border-color: var(--line-strong); }
+.gamut-card-head { display: flex; align-items: center; gap: .4rem; margin-bottom: .3rem; }
+.gamut-card-name { font-weight: 700; font-size: .9rem; }
+.gamut-card-era { margin: 0 0 .5rem; font-size: .78rem; color: var(--ink-faint); max-width: none; }
+.gamut-card-list { margin: 0; padding-left: 1.1em; font-size: .84rem; line-height: 1.65; max-width: none; }
+.gamut-card-list li { margin-bottom: .3em; }
