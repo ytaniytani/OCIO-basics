@@ -309,14 +309,23 @@ export const TRANSFERS = {
   demolog: {
     label: 'Log(学習用の一例)',
     note: '広い明るさを詰め込む記録方式。実在の機種の曲線ではありません',
+    // Log のいちばん大事な性質は「1.0 を大きく超える光を 0〜1 に詰めこめる」ことです。
+    // 以前はここの正規化を「光の量 1.0 で数値 1.0」にしていたため、
+    // 1.0 を超える光が数値 1.0 を超えてしまい、Log の性質を持っていませんでした。
+    // いまは光の量 16(中間グレーの約6.5段上)で数値 1.0 になるようにしています。
+    //   光 0.18 → 0.40、光 1.0 → 0.63、光 16 → 1.00
+    // 実在の機種の曲線ではありません。形を見せるための学習用です。
     encode: (x) => {
-      const a = 0.2, b = 0.01;
+      const a = 0.2, b = 0.002, HI = 16;
       if (x <= 0) return 0;
-      return Math.max(0, (Math.log10(x * a + b) - Math.log10(b)) / (Math.log10(a + b) - Math.log10(b)));
+      const lb = Math.log10(b);
+      const span = Math.log10(a * HI + b) - lb;
+      return Math.max(0, (Math.log10(x * a + b) - lb) / span);
     },
     decode: (x) => {
-      const a = 0.2, b = 0.01;
-      const lb = Math.log10(b), span = Math.log10(a + b) - lb;
+      const a = 0.2, b = 0.002, HI = 16;
+      const lb = Math.log10(b);
+      const span = Math.log10(a * HI + b) - lb;
       return (Math.pow(10, x * span + lb) - b) / a;
     },
   },

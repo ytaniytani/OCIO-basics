@@ -14,7 +14,7 @@ const PROBE = { u: 0.44, v: 0.42 };
 export default function i01(mount) {
   const w = createWidget(mount, {
     title: '光を強くしてみる',
-    aim: '光の量を2倍にすると、画面に出る数値も2倍になるでしょうか。確かめてみます。',
+    aim: '光の量を2倍にすると、画面に出る数値も2倍になるでしょうか。確かめてみます。8bit は真っ黒 0 から真っ白 255 までの 256段階のことです。',
     simplified: true,
   });
 
@@ -60,10 +60,10 @@ export default function i01(mount) {
       <div class="meter"><span class="mk">光の量</span>
         <span class="mb"><i style="width:${Math.min(100, light / 3 * 100)}%"></i></span>
         <span class="mv">${fmtNum(light, 3)}</span></div>
-      <div class="meter"><span class="mk">保存する数値</span>
+      <div class="meter"><span class="mk">保存する数値(0〜1)</span>
         <span class="mb"><i style="width:${outv * 100}%"></i></span>
         <span class="mv">${outv.toFixed(3)}</span></div>
-      <div class="meter"><span class="mk">8bit の値</span>
+      <div class="meter"><span class="mk">8bit の値(0〜255)</span>
         <span class="mb"><i style="width:${outv * 100}%"></i></span>
         <span class="mv">${fmt8bit(outv)}</span></div>`;
 

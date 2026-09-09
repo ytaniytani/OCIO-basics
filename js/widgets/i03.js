@@ -19,7 +19,7 @@ const NOTES = {
   rec709: 'テレビ用です。sRGB とよく似ていますが、少しだけちがいます。',
   gamma22: 'いちばん単純な曲げ方です。sRGB とほぼ同じ形になります。',
   acescct: '色を調整するとき用です。とても広い明るさの範囲を扱えます。',
-  demolog: '広い明るさを詰めこむ記録方式の一例です。眠い灰色に見えるのはこのためです。',
+  demolog: '広い明るさを詰めこむ記録方式です。この曲線は学習用に作った一例で、実在のカメラの曲線ではありません。眠い灰色に見えるのはこのためです。',
 };
 
 const W = 520, H = 360, PAD = 46;
@@ -27,16 +27,13 @@ const W = 520, H = 360, PAD = 46;
 export default function i03(mount) {
   const w = createWidget(mount, {
     title: '曲がりかたを見てみる',
-    aim: '横が光の量、縦が保存される数値です。線の上をなぞると、対応する2つの値が読めます。',
+    aim: '横が光の量(真っ暗 0.0、白い紙 1.0)、縦が保存される数値(0〜1)です。線の上をなぞると、対応する2つの値が読めます。',
   });
 
   const svgNS = 'http://www.w3.org/2000/svg';
   const svg = document.createElementNS(svgNS, 'svg');
   svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
   svg.setAttribute('role', 'img');
-  const title = document.createElementNS(svgNS, 'title');
-  const desc = document.createElementNS(svgNS, 'desc');
-  svg.append(title, desc);
   svg.classList.add('curve-svg');
 
   const ramp = el('canvas', { class: 'ramp-canvas', width: 512, height: 44 });
@@ -111,30 +108,41 @@ export default function i03(mount) {
     }
     parts.push(`<polyline class="curve-main" points="${pts.join(' ')}"/>`);
 
-    // 中間グレー 0.18 の位置
-    const gx = px(linToX(MIDDLE_GREY)), gy = py(fn(MIDDLE_GREY));
+    // 中間グレーの位置。
+    // 横(光の量)は 0.18 で固定です。中間グレーは「光の量が 0.18」という
+    // 決めごとなので、曲げかたを変えても動きません。
+    // 縦(保存される数値)は曲げかたごとに変わります。
+    // ラベルに両方の数字を出さないと、どちらの軸の 0.18 なのか読者に伝わりません。
+    const greyCode = fn(MIDDLE_GREY);
+    const gx = px(linToX(MIDDLE_GREY)), gy = py(greyCode);
     parts.push(`<line class="grey-line" x1="${gx}" y1="${py(0)}" x2="${gx}" y2="${gy}"/>`);
     parts.push(`<line class="grey-line" x1="${px(0)}" y1="${gy}" x2="${gx}" y2="${gy}"/>`);
     parts.push(`<circle class="grey-dot" cx="${gx}" cy="${gy}" r="4.5"/>`);
-    parts.push(`<text class="grey-label" x="${gx + 8}" y="${gy - 8}">中間グレー 0.18</text>`);
+    // 点の右上に2行で置きます。曲線や目もりと重なっても読めるよう、
+    // 文字の下に背景の板を敷きます。
+    const lx = gx + 12, ly = gy - 34;
+    parts.push(`<rect class="grey-label-bg" x="${lx - 5}" y="${ly - 2}" width="152" height="32" rx="4"/>`);
+    parts.push(`<text class="grey-label grey-label-strong" x="${lx}" y="${ly + 11}">中間グレー</text>`);
+    parts.push(`<text class="grey-label" x="${lx}" y="${ly + 25}">光 0.18 → 数値 ${greyCode.toFixed(3)}</text>`);
 
     // 読み取り点
     const ppx = px(linToX(probe)), ppy = py(fn(probe));
     parts.push(`<circle class="probe-dot" cx="${ppx}" cy="${ppy}" r="6"/>`);
 
     svg.innerHTML = `<title>${TRANSFERS[curve].label} の曲線</title>
-      <desc>横軸が光の量、縦軸が保存される数値のグラフ。中間グレー 0.18 は数値 ${fn(MIDDLE_GREY).toFixed(3)} の位置にあります。</desc>
+      <desc>横軸が光の量、縦軸が保存される数値のグラフ。中間グレーは光の量 0.18 で、この曲げかたでは保存される数値が ${greyCode.toFixed(3)} になります。光の量 0.18 はどの曲げかたでも変わりません。</desc>
       ${parts.join('\n')}`;
 
     drawRamp(fn);
 
     const code = fn(probe);
     w.say(`<span class="kv">光の量 ${fmtNum(probe, 3)}</span> → <span class="kv">数値 ${code.toFixed(3)}</span>
-      → <span class="kv">8bit ${to8bit(code)}</span>。
+      → <span class="kv">8bit ${to8bit(code)}</span>(0〜255の256段階)。
       ${NOTES[curve]}`);
   }
 
-  // グレーの帯。左から右へ光の量が 1段ずつ(2倍ずつ)増えます。
+  // グレーの帯。横軸と同じ並びで、左から右へ光の量が増えます。
+  // (対数にしていないときは 0〜1 の等間隔、対数にしているときは 0.001〜16 です)
   function drawRamp(fn) {
     const ctx = ramp.getContext('2d');
     const im = ctx.createImageData(ramp.width, ramp.height);
@@ -160,6 +168,19 @@ export default function i03(mount) {
   svg.addEventListener('pointerdown', (e) => { svg.setPointerCapture(e.pointerId); moveProbe(e.clientX); });
   svg.addEventListener('pointermove', (e) => { if (e.buttons) moveProbe(e.clientX); });
 
+  // キーボードでも読み取り点を動かせるようにします。
+  // 左右キーで 1%、Shift を押しながらで 10% ずつ動きます。
+  svg.setAttribute('tabindex', '0');
+  svg.setAttribute('aria-label', '伝達関数のグラフ。左右キーで読み取り点を動かせます');
+  svg.addEventListener('keydown', (e) => {
+    const dir = e.key === 'ArrowLeft' ? -1 : e.key === 'ArrowRight' ? 1 : 0;
+    if (!dir) return;
+    e.preventDefault();
+    const step = (e.shiftKey ? 0.1 : 0.01) * dir;
+    probe = xToLin(Math.min(1, Math.max(0, linToX(probe) + step)));
+    draw();
+  });
+
   draw();
 
   w.setDetails(`
@@ -169,5 +190,31 @@ export default function i03(mount) {
     <p>Log と ACEScct を選ぶと、光の量が 1.0 を大きく超えても数値が 1.0 に収まっています。
        とても明るいところまで記録できるのがこの形の利点です。
        横軸を対数にすると、Log の線がまっすぐになります。</p>
+    <div class="callout">
+      <p class="note-title">中間グレーの点は、なぜ横に動かないの?</p>
+      <p>まず、この 0.18 は<b>光の量のほうの数字</b>です。0〜255 のうちの 0.18 ではありません。
+         光の量は「真っ暗が 0.0、白い紙が 1.0」として書きます。その 0.18、という意味です。</p>
+      <p>曲げかたを切りかえると、中間グレーの点は<b>上下には動きますが、左右には動きません</b>。
+         これは「中間グレー = 光の量が 0.18」という決めごとだからです。
+         カメラの前に置いた灰色の板が反射する光の量そのものなので、
+         あとから数値をどう曲げても、光の量のほうは変わりません。</p>
+      <p>変わるのは「その光を、いくつという数値で保存するか」のほうです。
+         同じ中間グレーでも、曲げかたによってこれだけ変わります。</p>
+      <div class="table-wrap">
+      <table>
+        <thead><tr><th>曲げかた</th><th class="num">光の量</th><th class="num">保存される数値</th><th class="num">8bit(0〜255)</th></tr></thead>
+        <tbody>
+          <tr><td>リニア</td><td class="num">0.18</td><td class="num">0.180</td><td class="num">46</td></tr>
+          <tr><td>sRGB</td><td class="num">0.18</td><td class="num">0.461</td><td class="num">118</td></tr>
+          <tr><td>Rec.709</td><td class="num">0.18</td><td class="num">0.409</td><td class="num">104</td></tr>
+          <tr><td>ガンマ2.2</td><td class="num">0.18</td><td class="num">0.459</td><td class="num">117</td></tr>
+          <tr><td>ACEScct</td><td class="num">0.18</td><td class="num">0.414</td><td class="num">105</td></tr>
+          <tr><td>Log(一例)</td><td class="num">0.18</td><td class="num">0.399</td><td class="num">102</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p>リニアだけ 0.18 のままなのは、リニアが「曲げない」やりかただからです。
+         光の量と数値が同じ、ということです。</p>
+    </div>
   `);
 }

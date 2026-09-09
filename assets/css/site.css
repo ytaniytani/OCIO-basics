@@ -267,6 +267,17 @@ ruby rt { font-size: .5em; color: var(--ink-faint); }
 .callout-bad { background: var(--bad-soft); border-color: transparent; }
 .callout-bad .note-title { color: var(--bad); }
 
+/* 用語の言い換え。本文の流れを止めずに、初めて出た言葉をその場で補います。
+   note より軽く見せたいので、左の線だけで区別します。 */
+.aside {
+  max-width: var(--measure);
+  margin: 1rem 0 1.4rem;
+  padding: .1rem 0 .1rem .9rem;
+  border-left: 3px solid var(--line-strong);
+  color: var(--ink-soft);
+  font-size: .95rem;
+}
+
 .recap {
   max-width: var(--measure);
   margin: 2.5rem 0;
@@ -647,6 +658,8 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; font-fam
 .curve-svg .grey-line { stroke: var(--ink-faint); stroke-width: 1; stroke-dasharray: 2 3; }
 .curve-svg .grey-dot { fill: var(--ink-soft); }
 .curve-svg .grey-label { fill: var(--ink-soft); font-size: 11px; }
+.curve-svg .grey-label-strong { fill: var(--ink); font-weight: 700; }
+.curve-svg .grey-label-bg { fill: var(--bg-raised); opacity: .92; }
 .curve-svg .probe-dot { fill: none; stroke: var(--ink); stroke-width: 2.2; }
 
 .ramp-canvas { image-rendering: auto; height: 44px; }
