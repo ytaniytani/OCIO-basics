@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>はじめに | 色のきほん — OCIO と ACES をさわって学ぶ</title>
+<meta name="description" content="このサイトの歩き方">
+<meta name="color-scheme" content="light dark">
+<link rel="stylesheet" href="assets/css/site.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%239a3d12'/%3E%3Ccircle cx='12' cy='13' r='6' fill='%23f2b134'/%3E%3Ccircle cx='20' cy='19' r='6' fill='%23e8e4dc' opacity='.85'/%3E%3C/svg%3E">
+<script type="module" src="js/main.js"></script>
+</head>
+<body data-chapter="">
+<header class="site-header">
+  <div class="site-header-inner">
+    <p class="site-title"><a href="index.html">色<span>の</span>きほん</a></p>
+    <button class="btn nav-toggle" type="button" aria-controls="chapter-nav" aria-expanded="true" hidden>目次</button>
+  </div>
+  <nav class="chapter-nav" id="chapter-nav" aria-label="目次">
+    <ol>
+      <li><a href="index.html" aria-current="page"><span class="num">0</span>はじめに</a></li>
+      <li><a href="ch01.html"><span class="num">1</span>色ってなんだろう</a></li>
+      <li><a href="ch02.html"><span class="num">2</span>数字だけでは色は決まらない</a></li>
+      <li><a href="ch03.html"><span class="num">3</span>明るさの数字は正直じゃない</a></li>
+      <li><a href="ch04.html"><span class="num">4</span>見える範囲がちがう</a></li>
+      <li><a href="ch05.html"><span class="num">5</span>混ぜると壊れる</a></li>
+      <li><a href="ch06.html"><span class="num">6</span>OCIO の登場</a></li>
+      <li><a href="ch07.html"><span class="num">7</span>config.ocio をさわる</a></li>
+      <li><a href="ch08.html"><span class="num">8</span>ACES というみんなのルール</a></li>
+      <li><a href="ch09.html"><span class="num">9</span>グレーディングはどこに入れる</a></li>
+      <li><a href="ch10.html"><span class="num">10</span>HDR — 明るいテレビにも届ける</a></li>
+      <li><a href="ch11.html"><span class="num">11</span>まとめとチェックテスト</a></li>
+      <li><a href="glossary.html"><span class="num">A</span>用語集</a></li>
+      <li><a href="next.html"><span class="num">B</span>次に何をする?</a></li>
+    </ol>
+  </nav>
+</header>
+<main>
+<!-- BODY:START -->
+<div class="hero">
+  <p class="chapter-kicker">はじめに</p>
+  <h1>同じ数字なのに、ちがう色。</h1>
+  <p class="lead">
+    スマホで撮った写真を友だちに送ったら、色が変わって見えた。そんなことが起きるのはなぜでしょう。このサイトでは、映像やCGの仕事で使われている「色の管理」のしくみを、さわりながら学びます。</p>
+</div>
+
+<div data-widget="hero-demo" class="js-mount">
+  <div class="js-required">
+    <p class="fallback-title">ここは動かして見る部分です</p>
+    <p>JavaScript を有効にすると、色がズレる様子をその場で見られます。本文だけでも読み進められます。</p>
+  </div>
+</div>
+
+<h2>このサイトのゴール</h2>
+
+<p>
+  用語を覚えることが目標ではありません。<strong>色がズレる事故を自分の手で起こして、自分で直せるようになる</strong>ことが目標です。</p>
+
+<p>読み終わると、次の3つが自分の言葉で説明できるようになります。</p>
+
+<ol>
+  <li><strong>なぜ色を管理するしくみが要るのか。</strong> 無いと何ができなくなるのか。</li>
+  <li><strong>OCIO とは何をする道具なのか。</strong> 設定ファイルを書きかえて、絵が変わるところまで体験します。</li>
+  <li><strong>ACES とはどんな共通ルールなのか。</strong> 色の味付けをどこに入れるか、HDR にどうつながるかまで。</li>
+</ol>
+
+<h2>進めかた</h2>
+
+<p>
+  1つの章は5分から8分で読めます。上から順に読むのがおすすめです。どの章にも、かならず<strong>さわれるもの</strong>があります。読むだけの章はありません。</p>
+
+<div class="note">
+  <p class="note-title">こわしても大丈夫です</p>
+  <p>
+    すべての操作にリセットボタンがあります。むしろ、わざと変な設定にして何が起きるか見るのがいちばん身につきます。このページのどこをどういじっても、あなたの端末やファイルには何も起きません。</p>
+</div>
+
+<div class="note">
+  <p class="note-title">前に知っておくことは何もありません</p>
+  <p>
+    映像もCGも写真もプログラミングも、やったことがなくて大丈夫です。小学校で習う「割合」と「グラフの読みかた」が分かれば読めます。むずかしい言葉には、かならずやさしい言いかえを付けています。</p>
+</div>
+
+<h2>目次</h2>
+
+<p data-storage-notice hidden class="note"></p>
+
+<ul class="toc-grid">
+  <li><a class="toc-card" href="ch01.html" data-chapter="ch01">
+    <span class="n">第1章</span><span class="t">色ってなんだろう</span>
+    <span class="d">光と目と数字。色が3つの数で表せる理由。</span></a></li>
+  <li><a class="toc-card" href="ch02.html" data-chapter="ch02">
+    <span class="n">第2章</span><span class="t">数字だけでは色は決まらない</span>
+    <span class="d">同じ数字が別の色になる。色空間という約束。</span></a></li>
+  <li><a class="toc-card" href="ch03.html" data-chapter="ch03">
+    <span class="n">第3章</span><span class="t">明るさの数字は正直じゃない</span>
+    <span class="d">50%グレーは、光の量が半分ではありません。</span></a></li>
+  <li><a class="toc-card" href="ch04.html" data-chapter="ch04">
+    <span class="n">第4章</span><span class="t">見える範囲がちがう</span>
+    <span class="d">白飛びした空は、なぜ後から戻せないのか。</span></a></li>
+  <li><a class="toc-card" href="ch05.html" data-chapter="ch05">
+    <span class="n">第5章</span><span class="t">混ぜると壊れる</span>
+    <span class="d">足し算もぼかしも、リニアでないと結果が狂います。</span></a></li>
+  <li><a class="toc-card" href="ch06.html" data-chapter="ch06">
+    <span class="n">第6章</span><span class="t">OCIO の登場</span>
+    <span class="d">バラバラの素材を1つの作品にまとめる道具。</span></a></li>
+  <li><a class="toc-card" href="ch07.html" data-chapter="ch07">
+    <span class="n">第7章</span><span class="t">config.ocio をさわる</span>
+    <span class="d">設定ファイルを自分で書きかえてみます。</span></a></li>
+  <li><a class="toc-card" href="ch08.html" data-chapter="ch08">
+    <span class="n">第8章</span><span class="t">ACES というみんなのルール</span>
+    <span class="d">共通の方眼紙に写してから作業するやりかた。</span></a></li>
+  <li><a class="toc-card" href="ch09.html" data-chapter="ch09">
+    <span class="n">第9章</span><span class="t">グレーディングはどこに入れる</span>
+    <span class="d">味付けは刷る前。3か所を実験で比べます。</span></a></li>
+  <li><a class="toc-card" href="ch10.html" data-chapter="ch10">
+    <span class="n">第10章</span><span class="t">HDR — 明るいテレビにも届ける</span>
+    <span class="d">1つのマスターから、何通りにも出す。</span></a></li>
+  <li><a class="toc-card" href="ch11.html" data-chapter="ch11">
+    <span class="n">第11章</span><span class="t">まとめとチェックテスト</span>
+    <span class="d">全体像の確認と、10問のテスト。</span></a></li>
+  <li><a class="toc-card" href="glossary.html">
+    <span class="n">付録A</span><span class="t">用語集</span>
+    <span class="d">出てくる言葉に、やさしい言いかえを付けました。</span></a></li>
+</ul>
+
+<h2>正直に書いておくこと</h2>
+
+<p>
+  このサイトの計算のうち、色を画面用に仕上げる部分は<strong>学習用の簡略版</strong>です。本物の ACES の処理とは細かいところが違います。簡略版を使っている部品には、右上に「学習用の簡略版」と表示しています。</p>
+
+<p>
+  そのかわり、色空間の定義や変換の行列、明るさの計算といった土台の部分は、公表されている規格の値をそのまま使っています。ここで身につけた考え方は、実際の現場でそのまま通用します。</p>
+<!-- BODY:END -->
+<nav class="chapter-foot" aria-label="前後の章">
+    <a class="next" href="ch01.html" rel="next"><span class="dir">つぎ</span><span class="ttl">色ってなんだろう</span></a>
+  </nav>
+</main>
+<footer class="site-footer">
+  <p>このページは外部に通信しません。アクセス解析もクッキーも使っていません。</p>
+  <p><a href="glossary.html">用語集</a> ・ <a href="next.html">次に何をする?</a> ・
+     <a href="https://github.com/ytaniytani/OCIO-basics">ソースと仕様書</a></p>
+</footer>
+</body>
+</html>
