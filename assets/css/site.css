@@ -278,6 +278,25 @@ ruby rt { font-size: .5em; color: var(--ink-faint); }
   font-size: .95rem;
 }
 
+/* 本文中の「もっとくわしく」。深入りしたい読者だけが開く。
+   既定では閉じているので、本流の読みやすさを損なわない。 */
+details.more {
+  max-width: var(--measure);
+  margin: 1.4rem 0;
+  padding: .7rem 1.1rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  background: var(--bg-sunken);
+  font-size: .95rem;
+}
+details.more > summary {
+  cursor: pointer;
+  font-weight: 700;
+  color: var(--accent);
+}
+details.more[open] > summary { margin-bottom: .7rem; }
+details.more > :last-child { margin-bottom: 0; }
+
 .recap {
   max-width: var(--measure);
   margin: 2.5rem 0;
