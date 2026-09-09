@@ -645,31 +645,65 @@ export const OUTPUT_PRESETS = {
 };
 
 /**
+ * 絶対輝度 (nit) を、SDR の画面で「HDR っぽく」見せるための圧縮。
+ *
+ * 【本物の HDR ではありません】SDR の画面は 100 nit までしか出せないので、
+ * HDR の全域を 0〜1 に押しこんで見せています。
+ * 使う画面には必ず「擬似表示です」と表示してください。
+ *
+ * 100 nit までは素直に(そのぶんだけ少し暗く)、
+ * 100 nit からピークまでは対数で、残りの明るさに割りあてます。
+ *   nit ≦ 100      : y = (nit / 100) × lowShare
+ *   nit > 100       : y = lowShare + (1 - lowShare) × log2(nit/100) / log2(peak/100)
+ */
+export class HDRPreviewNode extends Node {
+  constructor(peakNits = 1000, lowShare = 0.72) {
+    super('hdr_preview');
+    this.peakNits = Math.max(101, peakNits);
+    this.lowShare = lowShare;
+    this.span = Math.log2(this.peakNits / 100);
+  }
+  applyCPU(c) {
+    return c.map((n) => {
+      const x = Math.max(0, n) / 100;
+      if (x <= 1) return x * this.lowShare;
+      return this.lowShare + (1 - this.lowShare) * Math.log2(x) / this.span;
+    });
+  }
+  emitGLSL(v) {
+    return [
+      `${v} = max(vec3(0.0), ${v}) / 100.0;`,
+      `${v} = mix(${v} * ${f(this.lowShare)}, vec3(${f(this.lowShare)}) + ${f(1 - this.lowShare)} * log(max(${v}, vec3(1.0))) / log(2.0) / ${f(this.span)}, step(vec3(1.0), ${v}));`,
+    ].join('\n  ');
+  }
+  inverse() { return null; }
+  describe() { return `HDR の擬似表示(ピーク ${this.peakNits} nit を画面いっぱいに割りあて)`; }
+}
+
+/**
+ * PQ で書き出された数値を、SDR の画面で見るための後処理。
+ * PQ をほどいて nit にもどし、そこから擬似的に圧縮して sRGB にします。
+ */
+export function buildPQPreview({ gamut = 'Rec2020', peakNits = 1000 } = {}) {
+  return new GroupNode([
+    new TransferNode('pq', 'decode'),
+    new ExposureNode(Math.log2(10000)),   // 0..1 を nit にもどす
+    gamutNode(gamut, 'sRGB'),
+    new HDRPreviewNode(peakNits),
+    new ClampNode(0, 1),
+    new TransferNode('srgb', 'encode'),
+  ], 'HDR を SDR 画面で見るための擬似表示');
+}
+
+/**
  * HDR 非対応の画面で HDR の見え方を「ふんいき」だけ見せるための変換。
  * 本物ではありません。使う画面には必ずその旨を表示してください。
- * nit を SDR 画面の 0..1 に押し込め、白飛びしている部分が分かるようにします。
  */
 export function buildHDRPreviewTransform({ working = 'AP1', peakNits = 1000, greyNits = 12 } = {}) {
   return new GroupNode([
     new ToneMapNode(greyNits, peakNits),
     gamutNode(working, 'sRGB'),
-    // 100 nit を基準に、その上を対数で圧縮します(HDR らしさの擬似表現)。
-    new (class extends Node {
-      constructor() { super('hdr_preview'); }
-      applyCPU(c) {
-        return c.map((n) => {
-          const x = Math.max(0, n) / 100;
-          return x <= 1 ? x : 1 + Math.log2(x) * 0.12;
-        });
-      }
-      emitGLSL(v) {
-        return [
-          `${v} = max(vec3(0.0), ${v}) / 100.0;`,
-          `${v} = mix(${v}, vec3(1.0) + log(max(${v}, vec3(1.0))) / log(2.0) * 0.12, step(vec3(1.0), ${v}));`,
-        ].join('\n  ');
-      }
-      describe() { return 'HDR の擬似表示'; }
-    })(),
+    new HDRPreviewNode(peakNits),
     new ClampNode(0, 1),
     new TransferNode('srgb', 'encode'),
   ], 'HDR 擬似プレビュー');

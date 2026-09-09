@@ -39,8 +39,114 @@
 <!-- BODY:START -->
 <p class="chapter-kicker">第8章</p>
 <h1>ACES というみんなのルール</h1>
-<p class="lead">共通の方眼紙に写してから作業する</p>
-<p>(この章の本文はこれから書きます。)</p>
+<p class="lead">OCIO は「変換のしくみ」を用意してくれます。では、どの色空間を共通の場にするか。その答えを業界が用意したものが ACES です。</p>
+
+<h2 class="step step-trouble" data-step="こまる">共通の場所を、誰が決めるのか</h2>
+
+<p>第6章で、素材を「共通の作業空間」にそろえました。ではその共通の場所は、どこにすればいいのでしょう。</p>
+
+<p>自分たちで決めることもできます。でも作品ごと、チームごとにバラバラだと、こんどはチームとチームの間で同じ問題が起きます。他の会社に映像を渡したとき、また色が合わなくなります。</p>
+
+<h2 class="step" data-step="なぜ">世界共通の方眼紙</h2>
+
+<p><span class="term">ACES</span>(エーシーズ)は、映画業界が作った共通ルールです。正式には Academy Color Encoding System と言います。「どの色空間を共通の場にするか」を、世界中で1つに決めてしまおう、という考えかたです。</p>
+
+<div class="callout callout-good">
+  <p class="note-title">ACES を1文で言うと</p>
+  <p><strong>どんな素材も、いったん世界共通の広い方眼紙に写す。そこで作業して、最後に出力先ごとに刷り上げる。</strong></p>
+</div>
+
+<p>ACES のやりかたは、4つの段でできています。</p>
+
+<div class="table-wrap">
+<table>
+<thead><tr><th>段</th><th>よび名</th><th>やること</th></tr></thead>
+<tbody>
+<tr><td>1</td><td><span class="term">入力変換</span>(Input Transform / IDT)</td><td>どのカメラの絵も、ACES の座標に翻訳する</td></tr>
+<tr><td>2</td><td>作業空間</td><td>合成や CG の足しこみをする</td></tr>
+<tr><td>3</td><td><span class="term">ルック</span>(LMT)</td><td>作品ぜんたいの味付けをする</td></tr>
+<tr><td>4</td><td><span class="term">出力変換</span>(Output Transform)</td><td>見る機械に合わせて仕上げる</td></tr>
+</tbody>
+</table>
+</div>
+
+<h3>作業空間が3つあるのはなぜ?</h3>
+
+<p>ACES には作業空間が3つあります。多すぎると思うかもしれませんが、それぞれ用途がちがいます。</p>
+
+<div class="table-wrap">
+<table>
+<thead><tr><th>名前</th><th>使いみち</th><th>なぜそれが必要か</th></tr></thead>
+<tbody>
+<tr><td><code>ACES2065-1</code>(AP0)</td><td>保存と受けわたし</td><td>いちばん広い。将来どんなカメラや画面が出てきても入るようにしてある</td></tr>
+<tr><td><code>ACEScg</code>(AP1)</td><td>CG と合成の作業</td><td>リニアで、計算しやすい広さ。CG の光の計算に向く</td></tr>
+<tr><td><code>ACEScct</code></td><td>色の調整</td><td>対数なので、調整つまみの効きかたが自然になる</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>第2章の色度図で ACES2065-1 を表示すると、三角形が馬蹄形からはみ出していました。人の目に見えない色まで含んでいるということです。<strong>わざとそうしてあります。</strong>入れものを大きくしておけば、あとから何が来ても困らないからです。</p>
+
+<h2 class="step" data-step="さわる">流れを1枚で見る</h2>
+
+<p>素材が完成品になるまでの5つの段です。段を選ぶと、その時点の絵が見られます。素材と出力先も切りかえられます。</p>
+
+<div data-widget="i11" class="js-mount">
+  <div class="js-required">
+    <p class="fallback-title">ここは動かして見る部分です</p>
+    <p>JavaScript を有効にすると、素材 → 入力変換 → 作業空間 → ルック → 出力変換 という流れを、段ごとの絵で追えます。出力先を切りかえても、最後の段だけが差しかわることが確かめられます。</p>
+  </div>
+</div>
+
+<div class="note">
+  <p class="note-title">途中の段が変に見えても、こわれていません</p>
+  <p>入力変換のあとの絵は、そのまま画面に出すと白飛びして見えます。まだ画面用に仕上げていないからです。作業中の画面が眠く見えるのは、正常です。</p>
+</div>
+
+<p>いちばん大事なのは、<strong>出力先を切りかえても、①から④までが何も変わらない</strong>ことです。変わるのは⑤の出力変換だけです。</p>
+
+<h2 class="step" data-step="なぜ">出力変換のよび名について</h2>
+
+<p>本や記事によって、よび名がちがうことがあります。整理しておきます。</p>
+
+<div class="table-wrap">
+<table>
+<thead><tr><th>バージョン</th><th>出力の段の作り</th></tr></thead>
+<tbody>
+<tr><td>ACES 1.x</td><td><span class="term">RRT</span>(共通の仕上げ)と <span class="term">ODT</span>(機器ごとの調整)の2段</td></tr>
+<tr><td>ACES 2.0</td><td>この2つが1つの <span class="term">Output Transform</span> にまとまった</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>このサイトでは、新しいよび名の「出力変換」で通しています。古い記事で RRT や ODT という言葉を見かけたら、「出力変換の中身のこと」だと思ってください。</p>
+
+<h2 class="step step-fix" data-step="なおす">ACES と OCIO の関係</h2>
+
+<p>まぎらわしいので、はっきり分けておきます。</p>
+
+<div class="table-wrap">
+<table>
+<thead><tr><th></th><th>正体</th><th>役割</th></tr></thead>
+<tbody>
+<tr><td><strong>OCIO</strong></td><td>ソフトウェアのしくみ</td><td>変換を実行する道具。中身のルールは自分で決められる</td></tr>
+<tr><td><strong>ACES</strong></td><td>業界の取り決め</td><td>そのルールの中身。共通の場所と、変換の定義</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>つまり <strong>OCIO は入れもの、ACES は中身</strong>です。ACES 用の config.ocio は公式に配布されていて、ふつうはそれをダウンロードして使います。自分でゼロから書く必要はありません。</p>
+
+<div class="recap">
+  <h3>この章のまとめ</h3>
+  <ul>
+    <li>ACES は「共通の場所をどこにするか」を業界で1つに決めた取り決め。</li>
+    <li>入力変換 → 作業空間 → ルック → 出力変換 の4段。</li>
+    <li>作業空間は用途で3つ。保存用は広く、CG 用は計算しやすく、調整用は操作しやすく。</li>
+    <li>出力先を替えても、手前の段は何も変わらない。</li>
+    <li>OCIO は入れもの、ACES は中身。</li>
+  </ul>
+</div>
 <!-- BODY:END -->
 <nav class="chapter-foot" aria-label="前後の章">
     <a class="prev" href="ch07.html" rel="prev"><span class="dir">まえ</span><span class="ttl">config.ocio をさわる</span></a>

@@ -782,3 +782,67 @@ td.num, th.num { white-space: nowrap; }
 .block.is-dummy { opacity: .85; }
 .block-tray { display: flex; flex-wrap: wrap; gap: .5rem; }
 .pipeline-arrow { align-self: center; color: var(--ink-faint); font-size: 1.1rem; }
+
+/* ---------- ACES 全景マップ(I-11) ---------- */
+
+.aces-strip {
+  display: flex;
+  gap: .3rem;
+  align-items: stretch;
+  overflow-x: auto;
+  padding-bottom: .4rem;
+  scrollbar-width: thin;
+}
+.stage-card {
+  flex: 0 0 8.2rem;
+  display: grid;
+  gap: .3rem;
+  padding: .35rem;
+  border: 2px solid var(--line);
+  border-radius: 8px;
+  background: var(--bg-raised);
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+  text-align: center;
+}
+.stage-card.is-selected { border-color: var(--accent); background: var(--accent-soft); }
+.stage-thumb-canvas { width: 100%; height: auto; border-radius: 4px; background: #000; display: block; }
+.stage-name { font-size: .76rem; font-weight: 700; line-height: 1.4; }
+.stage-arrow { align-self: center; color: var(--ink-faint); flex: none; }
+
+.stage-explain { font-size: .88rem; }
+.stage-why, .stage-extra { margin: 0 0 .3em; max-width: none; }
+.stage-extra { color: var(--ink-soft); font-size: .85rem; }
+
+.hdr-notice {
+  margin: 0;
+  font-size: .78rem;
+  color: var(--warn);
+  background: var(--warn-soft);
+  padding: .4rem .6rem;
+  border-radius: 6px;
+  max-width: none;
+}
+
+/* ---------- 学園祭タイムライン(I-08) ---------- */
+
+.timeline { display: flex; gap: .25rem; }
+.strip-canvas { flex: 1 1 0; min-width: 0; height: auto; border-radius: 4px; background: #000; }
+.adv-box { display: grid; gap: .6rem; padding: .6rem; background: var(--bg-sunken); border-radius: 8px; }
+@media (min-width: 40rem) { .adv-box { grid-template-columns: 1fr 1fr; } }
+
+/* ---------- 明るさのヒートマップ(I-13) ---------- */
+
+.nit-legend { display: flex; flex-wrap: wrap; gap: .5rem; font-size: .76rem; align-items: center; }
+.nit-legend .item { display: inline-flex; align-items: center; gap: .25rem; }
+.nit-legend .box { width: 1.1rem; height: .6rem; border-radius: 2px; border: 1px solid var(--line-strong); }
+.nit-meter {
+  font-family: var(--mono);
+  font-size: .82rem;
+  padding: .35rem .6rem;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  display: inline-block;
+}
