@@ -51,9 +51,16 @@ GitHub Pages で公開する場合は、リポジトリのルートをそのま�
 https://ytaniytani.github.io/OCIO-basics/
 ```
 
-`.github/workflows/pages.yml` が、対象のブランチに push されるたびに公開します。
-Pages がまだ有効でなければ、ワークフローが自動で有効にします
-(`actions/configure-pages` の `enablement: true`)。設定画面をさわる必要はありません。
+### 最初に1回だけ必要な操作
+
+1. リポジトリの **Settings → Pages** を開く
+2. Source を **GitHub Actions** にする
+
+これだけです。あとは `.github/workflows/pages.yml` が、対象のブランチに push されるたびに公開します。
+
+ワークフローから自動で有効にすることはできません。既定の `GITHUB_TOKEN` には
+Pages を新規作成する権限がなく、`Resource not accessible by integration` で止まります。
+最初の1回だけ、設定画面で有効にしてください。
 
 公開されるのはサイト本体と `docs/` だけです。`tools/` は公開しません。
 公開の前に、生成したファイルが古くなっていないかも確かめます。

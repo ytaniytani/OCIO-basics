@@ -2,8 +2,9 @@ name: GitHub Pages
 
 # サイトを GitHub Pages に公開します。
 #
-# Pages がまだ有効になっていない場合は、このワークフローが自動で有効にします
-# (configure-pages の enablement: true)。設定画面をさわる必要はありません。
+# 使う前に一度だけ、リポジトリの Settings → Pages を開いて
+# Source を「GitHub Actions」にしてください。
+# ワークフローから自動で有効にすることはできません(権限が足りません)。
 #
 # 公開されるのは、下の「公開するファイルだけを集める」に書いたものだけです。
 # .git や tools/ は公開しません。
@@ -46,11 +47,14 @@ jobs:
           echo "--- 公開するもの ---"
           find _site -maxdepth 2 -not -path '*/.*' | sort
 
-      # enablement: true にしておくと、まだ Pages を有効にしていないリポジトリでも
-      # ここで自動的に有効にしてくれます。設定画面をさわる必要がありません。
+      # ここで「Get Pages site failed」と出たら、まだ Pages が有効になっていません。
+      # Settings → Pages → Source を「GitHub Actions」にしてください(1回だけ)。
+      #
+      # enablement: true でワークフローに有効化させることもできますが、
+      # 既定の GITHUB_TOKEN には Pages を新規作成する権限がなく、
+      # 「Resource not accessible by integration」で止まります。
+      # なので、最初の1回だけは設定画面で有効にしてください。
       - uses: actions/configure-pages@v5
-        with:
-          enablement: true
 
       - uses: actions/upload-pages-artifact@v3
         with:
