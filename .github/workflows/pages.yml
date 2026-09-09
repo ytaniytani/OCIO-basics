@@ -1,0 +1,63 @@
+name: GitHub Pages
+
+# サイトを GitHub Pages に公開します。
+#
+# 使う前に一度だけ、リポジトリの Settings → Pages を開いて
+# Source を「GitHub Actions」にしてください。
+#
+# 公開されるのは、下の「公開するファイルだけを集める」に書いたものだけです。
+# .git や tools/ は公開しません。
+
+on:
+  push:
+    branches:
+      - main
+      - claude/ocio-aces-learning-spec-590n3u
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# 同時に走らないようにします。走っているものは最後まで終わらせます。
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 生成したファイルが最新か確かめる
+        run: |
+          python3 tools/build_pages.py --check
+          python3 tools/build_glossary.py --check
+
+      - name: 公開するファイルだけを集める
+        run: |
+          mkdir -p _site
+          cp -r index.html ch*.html glossary.html next.html tests.html _site/
+          cp -r assets js docs _site/
+          # Jekyll を走らせないための目印
+          touch _site/.nojekyll
+          echo "--- 公開するもの ---"
+          find _site -maxdepth 2 -not -path '*/.*' | sort
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

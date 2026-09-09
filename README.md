@@ -43,6 +43,39 @@ GitHub Pages で公開する場合は、リポジトリのルートをそのま�
 - **簡略実装には、その旨を画面に表示します。** ACES の出力変換とミニ OCIO エンジンは学習用の簡略版です。ごまかしません。
 - **土台の数値は規格どおり。** 色空間の原色・白色点・変換行列・伝達関数は公表値をそのまま使い、テストで検算しています。
 
+## GitHub Pages で公開する
+
+公開先はここになります。
+
+```
+https://ytaniytani.github.io/OCIO-basics/
+```
+
+有効にする手順は2通りあります。**どちらか一方**でかまいません。
+
+### やりかたA: ブランチから直接公開(いちばん簡単)
+
+1. リポジトリの **Settings → Pages** を開く
+2. Source を **Deploy from a branch** にする
+3. Branch に `claude/ocio-aces-learning-spec-590n3u`、フォルダに **/ (root)** を選ぶ
+4. Save を押す
+
+数分で上の URL が見られるようになります。ビルドは走りません。ルートに `.nojekyll` を置いてあるので、Jekyll の処理も入りません。
+
+### やりかたB: GitHub Actions で公開
+
+1. リポジトリの **Settings → Pages** を開く
+2. Source を **GitHub Actions** にする
+3. 対象のブランチに push する(`.github/workflows/pages.yml` が走ります)
+
+こちらは公開するファイルを絞りこみます。サイト本体と `docs/` だけを公開し、`tools/` は公開しません。生成したファイルが古くなっていないかも、公開前に確かめます。
+
+もし `Branch is not allowed to deploy to github-pages` というエラーで止まったら、**Settings → Environments → github-pages → Deployment branches** に、そのブランチを足してください。`main` にマージすれば、この設定は要りません。
+
+### サブディレクトリで動くことは確認ずみです
+
+プロジェクトの Pages は `https://<ユーザー名>.github.io/<リポジトリ名>/` という形になります。このサイトは絶対パスを1つも使っていないので、そのまま動きます。公開されるファイルだけを取り出して、サブディレクトリ配信で全ページを検査ずみです。
+
 ## テストと検査
 
 ```
