@@ -51,9 +51,18 @@ GitHub Pages で公開する場合は、リポジトリのルートをそのま�
 https://ytaniytani.github.io/OCIO-basics/
 ```
 
-有効にする手順は2通りあります。**どちらか一方**でかまいません。
+`.github/workflows/pages.yml` が、対象のブランチに push されるたびに公開します。
+Pages がまだ有効でなければ、ワークフローが自動で有効にします
+(`actions/configure-pages` の `enablement: true`)。設定画面をさわる必要はありません。
 
-### やりかたA: ブランチから直接公開(いちばん簡単)
+公開されるのはサイト本体と `docs/` だけです。`tools/` は公開しません。
+公開の前に、生成したファイルが古くなっていないかも確かめます。
+
+もし `Branch is not allowed to deploy to github-pages` というエラーで止まったら、
+**Settings → Environments → github-pages → Deployment branches** に、そのブランチを足してください。
+`main` にマージすれば、この設定は要りません。
+
+### 手で設定する場合(ワークフローを使わないとき)
 
 1. リポジトリの **Settings → Pages** を開く
 2. Source を **Deploy from a branch** にする
@@ -61,16 +70,6 @@ https://ytaniytani.github.io/OCIO-basics/
 4. Save を押す
 
 数分で上の URL が見られるようになります。ビルドは走りません。ルートに `.nojekyll` を置いてあるので、Jekyll の処理も入りません。
-
-### やりかたB: GitHub Actions で公開
-
-1. リポジトリの **Settings → Pages** を開く
-2. Source を **GitHub Actions** にする
-3. 対象のブランチに push する(`.github/workflows/pages.yml` が走ります)
-
-こちらは公開するファイルを絞りこみます。サイト本体と `docs/` だけを公開し、`tools/` は公開しません。生成したファイルが古くなっていないかも、公開前に確かめます。
-
-もし `Branch is not allowed to deploy to github-pages` というエラーで止まったら、**Settings → Environments → github-pages → Deployment branches** に、そのブランチを足してください。`main` にマージすれば、この設定は要りません。
 
 ### サブディレクトリで動くことは確認ずみです
 
