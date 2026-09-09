@@ -330,6 +330,20 @@ export class GroupNode extends Node {
 //   - チャンネルごとに独立なので、明るい色は自然に白へ寄る
 // ---------------------------------------------------------------------------
 
+/** 8bit などの段階に丸めます。JPEG に焼いたときの粗さを見せるのに使います。 */
+export class QuantizeNode extends Node {
+  constructor(levels = 255) { super('quantize'); this.levels = levels; }
+  applyCPU(c) {
+    const n = this.levels;
+    return c.map((x) => Math.round(clamp(x, 0, 1) * n) / n);
+  }
+  emitGLSL(v) {
+    return `${v} = floor(clamp(${v}, vec3(0.0), vec3(1.0)) * ${f(this.levels)} + 0.5) / ${f(this.levels)};`;
+  }
+  inverse() { return null; } // 丸めた情報は戻りません
+  describe() { return `${this.levels + 1} 段階に丸める`; }
+}
+
 export class ToneMapNode extends Node {
   constructor(greyNits = 10, peakNits = 100) {
     super('tonemap');
