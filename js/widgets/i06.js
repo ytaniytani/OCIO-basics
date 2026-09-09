@@ -96,8 +96,9 @@ export default function i06(mount) {
     const va = a.applyCPU(probe)[1], vb = b.applyCPU(probe)[1];
     const lightness = probe[1];
     if (stops === 0) {
-      w.say(`いまは同じに見えます。窓の外の光の量は <b>${fmtNum(lightness, 0)}</b>、
-        室内のおよそ ${fmtNum(lightness / image.sample(image.width * 0.15, image.height * 0.5)[1], 0)} 倍です。
+      const wall = image.sample(image.width * 0.40, image.height * 0.45)[1];
+      w.say(`いまは同じに見えます。窓の外、太陽のそばの光の量は <b>${fmtNum(lightness, 0)}</b>、
+        室内の壁のおよそ ${fmtNum(lightness / wall, 0)} 倍です。
         露出スライダーを左に動かしてみてください。`);
     } else if (stops < 0) {
       const gap = Math.abs(vb - va);
@@ -148,10 +149,11 @@ export default function i06(mount) {
   window.addEventListener('resize', () => requestAnimationFrame(draw));
 
   w.setDetails(`
-    <p>この画像の室内の壁は、光の量で 0.05〜0.16。窓の外の空は 13〜19 あります。
-       いちばん暗いところ(0.025)からいちばん明るい太陽の芯(290)までは、
-       約1万倍、およそ13段の開きです。</p>
-    <p>人の目は同時にこの両方を見られますが、8bit の画像は 0〜255 の 256 段階しか持てません。</p>
+    <p>ここに出す数値は、どれも赤・緑・青の平均です。この画像の室内の壁は、光の量で 0.05〜0.18。
+       窓の外の空は 13〜17 あります(太陽のにじみを除いた値)。</p>
+    <p>いちばん暗い窓わく(0.03)から太陽の芯(280)までは、約1万倍、およそ13段の開きです。</p>
+    <p>室内の壁と窓の外の空くらいの差なら、人の目は同時に見られます。
+       8bit の画像は 0〜255 の 256 段階しか持てません。</p>
     <p>左の写真は、撮ったあとすぐに「見える範囲だけ」を切り取って 256 段階に丸めました。
        切り取られた外側は、もうどこにも残っていません。だから戻せません。</p>
     <p>右の写真は光の量をそのまま持っています。窓の外の値は 1.0 をはるかに超えていますが、

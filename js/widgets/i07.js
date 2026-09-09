@@ -35,7 +35,7 @@ const OP_INFO = {
   },
   alpha: {
     aim: '半透明の丸を、背景に重ねます。',
-    param: { label: '丸の不透明度', min: 0, max: 1, step: 0.02, value: 0.5 },
+    param: { label: '丸の不透明度(0=すきとおる / 1=すけない)', min: 0, max: 1, step: 0.02, value: 0.5 },
     wrong: '境目に暗いふちが出ます。混ざりぐあいが足りません。',
     right: '境目がなめらかにつながります。',
   },
