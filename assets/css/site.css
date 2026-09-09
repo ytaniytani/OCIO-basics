@@ -659,3 +659,126 @@ tr.row-off { opacity: .45; }
 .diff-wrap { display: grid; }
 @media (min-width: 40rem) { .diff-wrap { max-width: 50%; } }
 td.num, th.num { white-space: nowrap; }
+
+/* ---------- config.ocio エディタ(I-10) ---------- */
+
+.editor-layout { display: grid; gap: 1rem; }
+@media (min-width: 56rem) { .editor-layout { grid-template-columns: 1.15fr 1fr; } }
+.ed-col { display: grid; gap: .4rem; align-content: start; }
+
+.editor {
+  display: flex;
+  background: var(--bg);
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  overflow: hidden;
+  font-family: var(--mono);
+  font-size: 12.5px;
+  line-height: 1.55;
+  height: 22rem;
+}
+.ed-gutter {
+  flex: none;
+  padding: .6rem .5rem .6rem .7rem;
+  text-align: right;
+  color: var(--ink-faint);
+  background: var(--bg-sunken);
+  border-right: 1px solid var(--line);
+  white-space: pre;
+  overflow: hidden;
+  user-select: none;
+  font-variant-numeric: tabular-nums;
+}
+.ed-wrap { position: relative; flex: 1 1 auto; overflow: hidden; }
+.ed-hl, .ed-input {
+  margin: 0;
+  padding: .6rem .7rem;
+  font: inherit;
+  white-space: pre;
+  overflow: auto;
+  border: 0;
+  position: absolute;
+  inset: 0;
+  tab-size: 2;
+}
+.ed-hl { background: none; color: var(--ink); pointer-events: none; border-radius: 0; }
+.ed-input {
+  background: transparent;
+  color: transparent;
+  caret-color: var(--accent);
+  resize: none;
+  outline: none;
+}
+.ed-input::selection { background: color-mix(in srgb, var(--accent) 35%, transparent); }
+
+.y-line { display: block; }
+.y-line.y-bad { background: color-mix(in srgb, var(--bad) 16%, transparent); }
+.y-key { color: var(--accent); font-weight: 700; }
+.y-tag { color: var(--good); }
+.y-str { color: var(--warn); }
+.y-num { color: var(--ink-soft); }
+.y-cm { color: var(--ink-faint); font-style: italic; }
+
+.ed-problems { display: grid; gap: .3rem; font-size: .8rem; font-family: var(--sans); }
+.prob {
+  display: flex;
+  gap: .55rem;
+  padding: .45rem .6rem;
+  border-radius: 6px;
+  line-height: 1.6;
+}
+.prob-line { flex: none; font-family: var(--mono); font-size: .74rem; opacity: .8; padding-top: .1em; }
+.prob-body { display: grid; gap: .1rem; }
+.prob-fix { font-size: .78rem; opacity: .85; }
+.prob-err { background: var(--bad-soft); color: var(--bad); }
+.prob-warn { background: var(--warn-soft); color: var(--warn); }
+.prob-ok { background: var(--good-soft); color: var(--good); }
+
+.preview-canvas { background: #000; border-radius: 6px; width: 100%; height: auto; }
+.preview-controls { display: flex; flex-wrap: wrap; gap: .6rem; }
+.preview-controls .ctl { flex: 1 1 8rem; }
+
+.task-goal { margin: 0; font-size: .92rem; max-width: none; }
+.task-hints { display: grid; gap: .25rem; }
+.task-hints .hint {
+  margin: 0; font-size: .85rem; max-width: none;
+  padding: .4rem .6rem; background: var(--bg-sunken); border-radius: 6px;
+}
+.task-result { margin: 0; font-size: .9rem; font-weight: 700; max-width: none; }
+.task-result.is-ok { color: var(--good); }
+.task-result.is-pending { color: var(--ink-soft); font-weight: 400; }
+.btn-snippet { font-size: .76rem; }
+
+/* ---------- パイプライン(I-09 など) ---------- */
+
+.pipeline { display: grid; gap: .6rem; }
+.slot-row { display: flex; flex-wrap: wrap; gap: .5rem; align-items: stretch; }
+.slot {
+  flex: 1 1 8rem;
+  min-height: 4.2rem;
+  border: 2px dashed var(--line-strong);
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  padding: .4rem;
+  text-align: center;
+  font-size: .82rem;
+  background: var(--bg);
+}
+.slot.filled { border-style: solid; background: var(--bg-raised); }
+.slot.is-target { border-color: var(--accent); background: var(--accent-soft); }
+.slot .slot-num { font-size: .68rem; color: var(--ink-faint); display: block; }
+.block {
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  background: var(--bg-raised);
+  padding: .5rem .7rem;
+  font-size: .82rem;
+  cursor: grab;
+  text-align: center;
+  line-height: 1.5;
+}
+.block.selected { border-color: var(--accent); background: var(--accent-soft); font-weight: 700; }
+.block.is-dummy { opacity: .85; }
+.block-tray { display: flex; flex-wrap: wrap; gap: .5rem; }
+.pipeline-arrow { align-self: center; color: var(--ink-faint); font-size: 1.1rem; }

@@ -1,0 +1,50 @@
+ocio_profile_version: 2
+
+name: looks
+description: look(味付け)を足すための土台。第7章の課題3で使います
+
+roles:
+  reference: linear
+  scene_linear: linear
+  color_timing: grading
+  data: raw
+  default: srgb_display
+
+# --- 味付け ---
+# ここに look を足して、下の View から呼び出します。
+looks:
+  - !<Look>
+    name: warm
+    process_space: grading
+    description: 少しあたたかい色にする
+    transform: !<CDLTransform> {slope: [1.06, 1.0, 0.94]}
+
+colorspaces:
+  - !<ColorSpace>
+    name: linear
+    family: 基本
+    encoding: scene-linear
+    description: 光の量そのもの
+
+  - !<ColorSpace>
+    name: grading
+    family: 作業
+    encoding: log
+    description: 色を調整するとき用(ACEScct と同じ形)
+    from_reference: !<LogCameraTransform> {base: 2, log_side_slope: 0.0570776, log_side_offset: 0.5547945, lin_side_slope: 1, lin_side_offset: 0, lin_side_break: 0.0078125}
+
+  - !<ColorSpace>
+    name: srgb_display
+    family: 出力
+    encoding: sdr-video
+    from_reference: !<BuiltinTransform> {style: "LEARNING - ACES_OUTPUT_SDR100"}
+
+  - !<ColorSpace>
+    name: raw
+    family: 基本
+    isdata: true
+
+displays:
+  sRGB:
+    - !<View> {name: 味付けなし, colorspace: srgb_display}
+    - !<View> {name: あたたかく, colorspace: srgb_display, looks: warm}

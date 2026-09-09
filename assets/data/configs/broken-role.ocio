@@ -1,0 +1,35 @@
+ocio_profile_version: 2
+
+name: broken-role
+description: わざと1か所こわしてある設定。第7章の課題2で使います
+
+roles:
+  reference: linear
+  # ここがまちがっています。scene_linear は「光の量そのもの」の色空間を
+  # 指していないといけません。いまは画面用の色空間を指しています。
+  scene_linear: srgb_display
+  data: raw
+  default: srgb_display
+
+colorspaces:
+  - !<ColorSpace>
+    name: linear
+    family: 基本
+    description: 光の量そのもの
+    encoding: scene-linear
+
+  - !<ColorSpace>
+    name: srgb_display
+    family: 出力
+    description: パソコンやスマホの画面用
+    encoding: sdr-video
+    from_reference: !<BuiltinTransform> {style: "LEARNING - ACES_OUTPUT_SDR100"}
+
+  - !<ColorSpace>
+    name: raw
+    family: 基本
+    isdata: true
+
+displays:
+  sRGB:
+    - !<View> {name: 標準, colorspace: srgb_display}

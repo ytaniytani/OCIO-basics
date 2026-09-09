@@ -1,0 +1,41 @@
+ocio_profile_version: 2
+
+name: minimal
+description: 学習用の、いちばん小さい設定
+
+# --- ロール: どの色空間を何に使うかの割りあて ---
+roles:
+  reference: linear
+  scene_linear: linear
+  data: raw
+  default: srgb_display
+  color_picking: srgb_display
+
+# --- 色空間: この設定で扱う色空間の一覧 ---
+colorspaces:
+  - !<ColorSpace>
+    name: linear
+    family: 基本
+    description: 光の量そのもの。作業はここで行う
+    encoding: scene-linear
+    isdata: false
+
+  - !<ColorSpace>
+    name: srgb_display
+    family: 出力
+    description: パソコンやスマホの画面用
+    encoding: sdr-video
+    isdata: false
+    from_reference: !<BuiltinTransform> {style: "LEARNING - ACES_OUTPUT_SDR100"}
+
+  - !<ColorSpace>
+    name: raw
+    family: 基本
+    description: いっさい変換しない
+    isdata: true
+
+# --- 画面と見せかた ---
+displays:
+  sRGB:
+    - !<View> {name: 標準, colorspace: srgb_display}
+    - !<View> {name: そのまま, colorspace: raw}

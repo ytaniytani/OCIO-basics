@@ -1,0 +1,83 @@
+ocio_profile_version: 2
+
+name: aces-lite
+description: |
+  ACES のやりかたを小さくまとめた設定。第8章から第10章の中で使います。
+  本物の ACES の設定ファイルではありません。学習用です。
+
+roles:
+  reference: ACEScg
+  scene_linear: ACEScg
+  color_timing: ACEScct
+  compositing_log: ACEScct
+  aces_interchange: ACES2065-1
+  data: raw
+  default: sRGB_display
+
+looks:
+  - !<Look>
+    name: 作品の味付け
+    process_space: ACEScct
+    description: 作品ぜんたいにかける味付け(LMT にあたるもの)
+    transform: !<CDLTransform> {slope: [1.02, 1.0, 0.97], offset: [0.0, 0.0, 0.01], sat: 1.05}
+
+colorspaces:
+  - !<ColorSpace>
+    name: ACEScg
+    family: ACES
+    encoding: scene-linear
+    description: CG と合成の作業用。この設定の基準になる色空間
+
+  - !<ColorSpace>
+    name: ACES2065-1
+    family: ACES
+    encoding: scene-linear
+    description: 保存と受けわたし用。いちばん広い
+    to_reference: !<BuiltinTransform> {style: ACEScg_to_ACES2065-1, direction: inverse}
+
+  - !<ColorSpace>
+    name: ACEScct
+    family: ACES
+    encoding: log
+    description: 色を調整するとき用
+    from_reference: !<LogCameraTransform> {base: 2, log_side_slope: 0.0570776, log_side_offset: 0.5547945, lin_side_slope: 1, lin_side_offset: 0, lin_side_break: 0.0078125}
+
+  - !<ColorSpace>
+    name: sRGB_texture
+    family: 入力
+    encoding: sdr-video
+    description: スマホや配布画像のような、画面用の素材
+    to_reference: !<GroupTransform>
+      children:
+        - !<ExponentWithLinearTransform> {gamma: [2.4, 2.4, 2.4, 1], offset: [0.055, 0.055, 0.055, 0]}
+        - !<MatrixTransform> {matrix: [0.6131, 0.3395, 0.0474, 0, 0.0702, 0.9164, 0.0135, 0, 0.0206, 0.1096, 0.8698, 0, 0, 0, 0, 1]}
+
+  - !<ColorSpace>
+    name: sRGB_display
+    family: 出力
+    encoding: sdr-video
+    description: ふつうの画面 (100 nit)
+    from_reference: !<BuiltinTransform> {style: "LEARNING - ACES_OUTPUT_SDR100"}
+
+  - !<ColorSpace>
+    name: HDR1000_display
+    family: 出力
+    encoding: hdr-video
+    description: HDR のテレビ (1000 nit, PQ)
+    from_reference: !<BuiltinTransform> {style: "LEARNING - ACES_OUTPUT_HDR1000_PQ"}
+
+  - !<ColorSpace>
+    name: raw
+    family: 基本
+    isdata: true
+
+displays:
+  sRGB:
+    - !<View> {name: 味付けあり, colorspace: sRGB_display, looks: 作品の味付け}
+    - !<View> {name: 味付けなし, colorspace: sRGB_display}
+    - !<View> {name: そのまま, colorspace: raw}
+  HDR:
+    - !<View> {name: 味付けあり, colorspace: HDR1000_display, looks: 作品の味付け}
+    - !<View> {name: 味付けなし, colorspace: HDR1000_display}
+
+active_displays: [sRGB, HDR]

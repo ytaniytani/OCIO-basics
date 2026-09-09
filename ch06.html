@@ -39,8 +39,119 @@
 <!-- BODY:START -->
 <p class="chapter-kicker">第6章</p>
 <h1>OCIO の登場</h1>
-<p class="lead">バラバラの素材を1つの作品にまとめる</p>
-<p>(この章の本文はこれから書きます。)</p>
+<p class="lead">ここまでで「困りごと」がそろいました。いよいよ、それを解決する道具が出てきます。</p>
+
+<h2 class="step step-trouble" data-step="こまる">学園祭ムービーを作ることになった</h2>
+
+<p>クラスの学園祭で流す3分の映像を作ることになりました。素材は4つあります。</p>
+
+<div class="table-wrap">
+<table>
+<thead><tr><th>素材</th><th>どこから</th><th>もとの色空間</th></tr></thead>
+<tbody>
+<tr><td>スマホの動画</td><td>自分で撮った</td><td>sRGB(画面用に仕上がっている)</td></tr>
+<tr><td>一眼のログ映像</td><td>写真部の友だちが撮った</td><td>Log(眠い灰色に見える)</td></tr>
+<tr><td>3DCG</td><td>別の友だちが作った</td><td>リニア(光の量そのまま)</td></tr>
+<tr><td>フリー素材</td><td>ネットで拾った</td><td>分からない</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>編集ソフトに全部読みこんで並べてみたら、めちゃくちゃでした。CGだけ真っ白、ログ映像だけ灰色、明るさもバラバラです。しかも、家のパソコンと学校のパソコンで見え方がちがいます。</p>
+
+<div data-widget="i08" class="js-mount">
+  <div class="js-required">
+    <p class="fallback-title">ここは動かして見る部分です</p>
+    <p>JavaScript を有効にすると、4つの素材を色の管理あり・なしで比べられます。管理をしないと素材ごとに見え方がバラバラで、編集ソフトを変えるとさらに変わります。管理をすると全部そろい、ソフトを変えても同じになります。</p>
+  </div>
+</div>
+
+<h2 class="step" data-step="なぜ">「どう読みこむか」を誰も決めていない</h2>
+
+<p>原因は、第2章と第5章で見たことの組み合わせです。</p>
+
+<ul>
+  <li>素材ごとに、もとの色空間がちがう(第2章)。</li>
+  <li>計算するには、全部を光の量にそろえないといけない(第5章)。</li>
+  <li>でも、どの素材にどの変換をかけるかを、誰も決めていない。</li>
+</ul>
+
+<p>さらに悪いことに、編集ソフトごとに「たぶんこうだろう」という思いこみがあります。ソフトAとソフトBで思いこみがちがえば、見え方も変わります。</p>
+
+<h3>ここで OCIO が登場します</h3>
+
+<div class="callout callout-good">
+  <p class="note-title">OCIO を1文で言うと</p>
+  <p><strong>「どの色空間からどの色空間へ、どう変換するか」を1つのファイルにまとめて、全部のソフトに同じ答えを出させるしくみ。</strong></p>
+</div>
+
+<p><span class="term">OpenColorIO</span>(オープンカラーアイオー、略して OCIO)は、映画やアニメの制作現場で広く使われている、色の翻訳係です。無料で誰でも使えます。Blender や DaVinci Resolve、Krita のような無料のソフトにも入っています。</p>
+
+<p>OCIO の実体は、<code>config.ocio</code> という<strong>たった1つのファイル</strong>です。そこに変換のルールが全部書いてあります。チームの全員が同じファイルを使えば、全員の画面で同じ色になります。</p>
+
+<h2 class="step" data-step="なぜ">OCIO がないと、何ができないのか</h2>
+
+<p>ここは大事なので、はっきり書いておきます。色の管理をしないと、次のことができません。</p>
+
+<ol>
+  <li><strong>「正解の色」を決められない。</strong> ソフトを移るたびに色が変わるので、どれが本当の色なのか分からなくなります。</li>
+  <li><strong>CGと実写をなじませられない。</strong> 別々のものさしの上にいるので、いくら調整しても合いません。</li>
+  <li><strong>HDR版を後から作れない。</strong> ふつうの画面用に仕上げてしまうと、全工程をやり直すことになります。</li>
+  <li><strong>数年後に同じ色を再現できない。</strong> どう変換したかの記録がどこにもないからです。</li>
+  <li><strong>チームで話が通じない。</strong> 「私の画面ではこう見える」の言い合いになって、決着がつきません。</li>
+</ol>
+
+<p>逆に言えば、OCIO を使うとこの5つが全部できるようになります。</p>
+
+<h2 class="step" data-step="さわる">順番にも意味があります</h2>
+
+<p>色の流れには決まった順番があります。ブロックを正しい順にならべてみてください。まちがえると、その並べかたに応じた壊れかたをします。</p>
+
+<div data-widget="i09" class="js-mount">
+  <div class="js-required">
+    <p class="fallback-title">ここは動かして見る部分です</p>
+    <p>JavaScript を有効にすると、パイプラインを組み立てるパズルができます。正解は「入力変換 → 作業空間で作業 → ルック(味付け) → 出力変換」の順です。</p>
+  </div>
+</div>
+
+<p>正解は次の順番です。</p>
+
+<div class="table-wrap">
+<table>
+<thead><tr><th>順番</th><th>やること</th><th>なぜその位置か</th></tr></thead>
+<tbody>
+<tr><td>1</td><td><span class="term">入力変換</span></td><td>素材が何なのかを決めないと、先の計算の意味が決まらない</td></tr>
+<tr><td>2</td><td>作業空間で作業</td><td>全部が同じものさしの上にいるので、混ぜても壊れない</td></tr>
+<tr><td>3</td><td><span class="term">ルック</span>(味付け)</td><td>出力先を変えても味付けが保たれる位置</td></tr>
+<tr><td>4</td><td><span class="term">出力変換</span></td><td>見る機械に合わせて仕上げる、いちばん最後の工程</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>3番の位置がなぜ大事なのかは、第9章でじっくり確かめます。</p>
+
+<h2 class="step step-fix" data-step="なおす">ルールを1つのファイルにまとめる</h2>
+
+<p>OCIO を使うと、さっきの学園祭プロジェクトはこうなります。</p>
+
+<ul>
+  <li>素材ごとに「これは sRGB」「これは Log」「これはリニア」と指定する。</li>
+  <li>全部を共通の作業空間に翻訳してから編集する。</li>
+  <li>最後にまとめて画面用に仕上げる。</li>
+  <li>この指定を <code>config.ocio</code> に書いて、みんなで共有する。</li>
+</ul>
+
+<p>次の章では、その <code>config.ocio</code> の中身を実際に開いて、自分で書きかえてみます。</p>
+
+<div class="recap">
+  <h3>この章のまとめ</h3>
+  <ul>
+    <li>素材ごとに色空間がちがうので、そのまま並べても作品にならない。</li>
+    <li>OCIO は「どの色空間からどの色空間へ、どう変換するか」をまとめたしくみ。</li>
+    <li>実体は config.ocio という1つのファイル。チームで共有する。</li>
+    <li>順番は 入力変換 → 作業 → 味付け → 出力変換。</li>
+  </ul>
+</div>
 <!-- BODY:END -->
 <nav class="chapter-foot" aria-label="前後の章">
     <a class="prev" href="ch05.html" rel="prev"><span class="dir">まえ</span><span class="ttl">混ぜると壊れる</span></a>

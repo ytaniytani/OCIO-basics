@@ -1,0 +1,43 @@
+ocio_profile_version: 2
+
+name: two-displays
+description: 出力先が2つある設定。第7章の課題4で使います
+
+roles:
+  reference: linear
+  scene_linear: linear
+  data: raw
+  default: srgb_display
+
+colorspaces:
+  - !<ColorSpace>
+    name: linear
+    family: 基本
+    encoding: scene-linear
+
+  - !<ColorSpace>
+    name: srgb_display
+    family: 出力
+    encoding: sdr-video
+    description: パソコンやスマホの画面
+    from_reference: !<BuiltinTransform> {style: "LEARNING - ACES_OUTPUT_SDR100"}
+
+  - !<ColorSpace>
+    name: rec709_display
+    family: 出力
+    encoding: sdr-video
+    description: ハイビジョンテレビ
+    from_reference: !<BuiltinTransform> {style: "LEARNING - ACES_OUTPUT_REC709"}
+
+  - !<ColorSpace>
+    name: raw
+    family: 基本
+    isdata: true
+
+displays:
+  sRGB:
+    - !<View> {name: 標準, colorspace: srgb_display}
+  Rec709:
+    - !<View> {name: 標準, colorspace: rec709_display}
+
+active_displays: [sRGB, Rec709]

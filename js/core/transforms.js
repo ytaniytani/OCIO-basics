@@ -313,6 +313,193 @@ export class GroupNode extends Node {
   }
 }
 
+
+// ---------------------------------------------------------------------------
+// config.ocio に出てくる変換のためのノード
+// ---------------------------------------------------------------------------
+
+/** ExponentTransform。順方向は x の value 乗(曲げをほどく向き)です。 */
+export class PowerNode extends Node {
+  constructor(value = [2.2, 2.2, 2.2], direction = 'forward') {
+    super('power');
+    this.value = value.slice(0, 3);
+    this.direction = direction;
+  }
+  get exps() {
+    return this.direction === 'forward' ? this.value : this.value.map((v) => 1 / v);
+  }
+  applyCPU(c) {
+    const e = this.exps;
+    return c.map((x, i) => (x < 0 ? -Math.pow(-x, e[i]) : Math.pow(x, e[i])));
+  }
+  emitGLSL(v) {
+    const e = this.exps;
+    return `${v} = vec3(sgn_pow(${v}.r, ${f(e[0])}), sgn_pow(${v}.g, ${f(e[1])}), sgn_pow(${v}.b, ${f(e[2])}));`;
+  }
+  inverse() {
+    return new PowerNode(this.value, this.direction === 'forward' ? 'inverse' : 'forward');
+  }
+  describe() { return `${this.direction === 'forward' ? '' : '逆に'}${this.value[0]} 乗する`; }
+}
+
+/**
+ * ExponentWithLinearTransform。sRGB のような「暗い側だけ直線」の曲線です。
+ * 順方向は 数値 → 光の量。
+ *   さかい目 xbrk = offset / (gamma - 1)
+ *   直線部分の傾き scale = ((1+offset)/gamma)^gamma × (gamma-1)^(gamma-1) / offset^(gamma-1)
+ * gamma=2.4, offset=0.055 のとき、傾きは約 12.93 になり sRGB とほぼ同じ形です。
+ */
+export class MonitorCurveNode extends Node {
+  constructor(gamma = 2.4, offset = 0.055, direction = 'forward') {
+    super('monitor_curve');
+    this.gamma = gamma;
+    this.offset = offset;
+    this.direction = direction;
+    this.xbrk = offset / (gamma - 1);
+    this.scale = Math.pow((1 + offset) / gamma, gamma)
+      * Math.pow(gamma - 1, gamma - 1) / Math.pow(offset, gamma - 1);
+    this.ybrk = this.xbrk / this.scale;
+  }
+  _fwd(x) {
+    const a = Math.abs(x);
+    const y = a >= this.xbrk ? Math.pow((a + this.offset) / (1 + this.offset), this.gamma) : a / this.scale;
+    return x < 0 ? -y : y;
+  }
+  _inv(y) {
+    const a = Math.abs(y);
+    const x = a >= this.ybrk ? (1 + this.offset) * Math.pow(a, 1 / this.gamma) - this.offset : a * this.scale;
+    return y < 0 ? -x : x;
+  }
+  applyCPU(c) {
+    const fn = this.direction === 'forward' ? (x) => this._fwd(x) : (x) => this._inv(x);
+    return c.map(fn);
+  }
+  emitGLSL(v) {
+    const g = f(this.gamma), o = f(this.offset), sc = f(this.scale);
+    if (this.direction === 'forward') {
+      return `${v} = mix(abs(${v}) / ${sc}, pow((abs(${v}) + vec3(${o})) / ${f(1 + this.offset)}, vec3(${g})), step(vec3(${f(this.xbrk)}), abs(${v}))) * sign(${v});`;
+    }
+    return `${v} = mix(abs(${v}) * ${sc}, ${f(1 + this.offset)} * pow(abs(${v}), vec3(${f(1 / this.gamma)})) - vec3(${o}), step(vec3(${f(this.ybrk)}), abs(${v}))) * sign(${v});`;
+  }
+  inverse() {
+    return new MonitorCurveNode(this.gamma, this.offset,
+      this.direction === 'forward' ? 'inverse' : 'forward');
+  }
+  describe() { return `直線部分つきの ${this.gamma} 乗の曲線`; }
+}
+
+/**
+ * LogAffineTransform / LogCameraTransform。
+ * 順方向は 光の量 → 対数の数値。
+ *   out = logSideSlope × log_base(linSideSlope × x + linSideOffset) + logSideOffset
+ * linSideBreak を指定すると、それより暗い側は直線でつなぎます(LogCameraTransform)。
+ */
+export class LogAffineNode extends Node {
+  constructor(o = {}, direction = 'forward') {
+    super('log_affine');
+    this.base = o.base === undefined ? 2 : o.base;
+    this.logSideSlope = o.logSideSlope === undefined ? 1 : o.logSideSlope;
+    this.logSideOffset = o.logSideOffset === undefined ? 0 : o.logSideOffset;
+    this.linSideSlope = o.linSideSlope === undefined ? 1 : o.linSideSlope;
+    this.linSideOffset = o.linSideOffset === undefined ? 0 : o.linSideOffset;
+    this.linSideBreak = o.linSideBreak;
+    this.direction = direction;
+    if (this.linSideBreak !== undefined) {
+      // さかい目でなめらかにつながるように、直線部分の傾きと切片を求めます。
+      const b = this.linSideBreak;
+      const lb = Math.log(this.base);
+      const inner = this.linSideSlope * b + this.linSideOffset;
+      this.logBreak = this.logSideSlope * (Math.log(inner) / lb) + this.logSideOffset;
+      this.linearSlope = o.linearSlope === undefined
+        ? this.logSideSlope * this.linSideSlope / (inner * lb)
+        : o.linearSlope;
+      this.linearOffset = this.logBreak - this.linearSlope * b;
+    }
+  }
+  _fwd(x) {
+    if (this.linSideBreak !== undefined && x <= this.linSideBreak) {
+      return this.linearSlope * x + this.linearOffset;
+    }
+    const inner = this.linSideSlope * x + this.linSideOffset;
+    if (inner <= 0) return -1e6;
+    return this.logSideSlope * (Math.log(inner) / Math.log(this.base)) + this.logSideOffset;
+  }
+  _inv(y) {
+    if (this.linSideBreak !== undefined && y <= this.logBreak) {
+      return (y - this.linearOffset) / this.linearSlope;
+    }
+    const p = (y - this.logSideOffset) / this.logSideSlope;
+    return (Math.pow(this.base, p) - this.linSideOffset) / this.linSideSlope;
+  }
+  applyCPU(c) {
+    const fn = this.direction === 'forward' ? (x) => this._fwd(x) : (x) => this._inv(x);
+    return c.map(fn);
+  }
+  emitGLSL(v) {
+    const lb = f(Math.log(this.base));
+    const lss = f(this.logSideSlope), lso = f(this.logSideOffset);
+    const nss = f(this.linSideSlope), nso = f(this.linSideOffset);
+    if (this.direction === 'forward') {
+      const core = `(${lss} * (log(max(vec3(1e-10), ${nss} * ${v} + vec3(${nso}))) / ${lb}) + vec3(${lso}))`;
+      if (this.linSideBreak === undefined) return `${v} = ${core};`;
+      return `${v} = mix(${f(this.linearSlope)} * ${v} + vec3(${f(this.linearOffset)}), ${core}, step(vec3(${f(this.linSideBreak)}), ${v}));`;
+    }
+    const core = `((pow(vec3(${f(this.base)}), (${v} - vec3(${lso})) / ${lss}) - vec3(${nso})) / ${nss})`;
+    if (this.linSideBreak === undefined) return `${v} = ${core};`;
+    return `${v} = mix((${v} - vec3(${f(this.linearOffset)})) / ${f(this.linearSlope)}, ${core}, step(vec3(${f(this.logBreak)}), ${v}));`;
+  }
+  inverse() {
+    const o = {
+      base: this.base, logSideSlope: this.logSideSlope, logSideOffset: this.logSideOffset,
+      linSideSlope: this.linSideSlope, linSideOffset: this.linSideOffset,
+      linSideBreak: this.linSideBreak, linearSlope: this.linearSlope,
+    };
+    return new LogAffineNode(o, this.direction === 'forward' ? 'inverse' : 'forward');
+  }
+  describe() { return '対数のカーブ'; }
+}
+
+/** RangeTransform。範囲を移しかえます。クランプありのときは逆変換を作れません。 */
+export class RangeNode extends Node {
+  constructor(o = {}) {
+    super('range');
+    this.minIn = o.minInValue;
+    this.maxIn = o.maxInValue;
+    this.minOut = o.minOutValue;
+    this.maxOut = o.maxOutValue;
+    this.noClamp = o.style === 'noClamp';
+    const hasAll = [this.minIn, this.maxIn, this.minOut, this.maxOut].every((x) => x !== undefined);
+    this.scale = hasAll ? (this.maxOut - this.minOut) / (this.maxIn - this.minIn) : 1;
+    this.shift = hasAll ? this.minOut - this.minIn * this.scale : 0;
+  }
+  applyCPU(c) {
+    return c.map((x) => {
+      let y = x * this.scale + this.shift;
+      if (!this.noClamp) {
+        if (this.minOut !== undefined) y = Math.max(this.minOut, y);
+        if (this.maxOut !== undefined) y = Math.min(this.maxOut, y);
+      }
+      return y;
+    });
+  }
+  emitGLSL(v) {
+    const lines = [`${v} = ${v} * ${f(this.scale)} + vec3(${f(this.shift)});`];
+    if (!this.noClamp) {
+      if (this.minOut !== undefined) lines.push(`${v} = max(${v}, vec3(${f(this.minOut)}));`);
+      if (this.maxOut !== undefined) lines.push(`${v} = min(${v}, vec3(${f(this.maxOut)}));`);
+    }
+    return lines.join('\n  ');
+  }
+  inverse() {
+    if (!this.noClamp) return null; // 切りそろえた情報は戻せません
+    return new RangeNode({
+      minInValue: this.minOut, maxInValue: this.maxOut,
+      minOutValue: this.minIn, maxOutValue: this.maxIn, style: 'noClamp',
+    });
+  }
+  describe() { return '範囲を移しかえる'; }
+}
+
 // ---------------------------------------------------------------------------
 // 学習用の出力変換 (Output Transform)
 //

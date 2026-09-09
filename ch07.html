@@ -39,8 +39,127 @@
 <!-- BODY:START -->
 <p class="chapter-kicker">第7章</p>
 <h1>config.ocio をさわる</h1>
-<p class="lead">設定ファイルを自分で書きかえてみる</p>
-<p>(この章の本文はこれから書きます。)</p>
+<p class="lead">OCIO の実体は、ただの文字が書かれた1つのファイルです。開いて、書きかえて、絵が変わるところまでやってみます。</p>
+
+<h2 class="step" data-step="なぜ">中身はこれだけです</h2>
+
+<p>こわがる必要はありません。いちばん小さい <code>config.ocio</code> の全文がこれです。</p>
+
+<pre><code>ocio_profile_version: 2
+
+name: minimal
+description: 学習用の、いちばん小さい設定
+
+# --- ロール: どの色空間を何に使うかの割りあて ---
+roles:
+  reference: linear
+  scene_linear: linear
+  data: raw
+  default: srgb_display
+  color_picking: srgb_display
+
+# --- 色空間: この設定で扱う色空間の一覧 ---
+colorspaces:
+  - !&lt;ColorSpace&gt;
+    name: linear
+    family: 基本
+    description: 光の量そのもの。作業はここで行う
+    encoding: scene-linear
+    isdata: false
+
+  - !&lt;ColorSpace&gt;
+    name: srgb_display
+    family: 出力
+    description: パソコンやスマホの画面用
+    encoding: sdr-video
+    isdata: false
+    from_reference: !&lt;BuiltinTransform&gt; {style: "LEARNING - ACES_OUTPUT_SDR100"}
+
+  - !&lt;ColorSpace&gt;
+    name: raw
+    family: 基本
+    description: いっさい変換しない
+    isdata: true
+
+# --- 画面と見せかた ---
+displays:
+  sRGB:
+    - !&lt;View&gt; {name: 標準, colorspace: srgb_display}
+    - !&lt;View&gt; {name: そのまま, colorspace: raw}</code></pre>
+
+<h3>覚えるのは5つだけ</h3>
+
+<div class="table-wrap">
+<table>
+<thead><tr><th>書くところ</th><th>意味</th></tr></thead>
+<tbody>
+<tr><td><code>roles</code></td><td>どの色空間を何に使うかの割りあて。ソフトはこの名前で色空間を探します</td></tr>
+<tr><td><code>colorspaces</code></td><td>この設定で扱う色空間の一覧</td></tr>
+<tr><td><code>displays</code></td><td>どの画面に出すか</td></tr>
+<tr><td><code>views</code></td><td>その画面での見せかた。displays の中に書きます</td></tr>
+<tr><td><code>looks</code></td><td>味付け。View から名前で呼び出します</td></tr>
+</tbody>
+</table>
+</div>
+
+<h3>行ごとの意味</h3>
+
+<ul>
+  <li><code>roles:</code> のところ。<code>scene_linear: linear</code> は「光の量そのものを扱うときは linear という色空間を使ってね」という意味です。ソフトは色空間の名前を直接知らなくても、この役割の名前で探せます。</li>
+  <li><code>- !&lt;ColorSpace&gt;</code> で始まるかたまりが、色空間1つぶんです。</li>
+  <li><code>from_reference:</code> は「基準の色空間から、この色空間へ行く変換」です。逆向きは <code>to_reference:</code> です。</li>
+  <li><code>isdata: true</code> は「これは色ではなくデータなので、いっさい変換しない」という印です。</li>
+  <li><code>displays:</code> の下の <code>sRGB:</code> が画面の名前、その下の <code>- !&lt;View&gt;</code> が見せかたです。</li>
+</ul>
+
+<h2 class="step" data-step="さわる">自分で書きかえてみる</h2>
+
+<p>下のエディタで実際に書きかえられます。左を直すと右の絵がすぐ変わります。課題が4つあります。上から順にやってみてください。</p>
+
+<div class="callout">
+  <p class="note-title">こわしてください</p>
+  <p>わざと変な設定にして、どんなエラーが出るか見るのがいちばん勉強になります。リセットを押せば、いつでも元にもどせます。</p>
+</div>
+
+<div data-widget="i10" class="js-mount">
+  <div class="js-required">
+    <p class="fallback-title">ここは動かして見る部分です</p>
+    <p>JavaScript を有効にすると、config.ocio を書きかえて結果をその場で見られる練習ができます。課題は4つあります。色空間を足す、こわれたロールを直す、味付けを足す、出力先を切りかえる、です。</p>
+  </div>
+</div>
+
+<h3>課題2で何が起きているか</h3>
+
+<p>課題2の設定は、<code>scene_linear</code> というロールが、画面用の色空間を指しています。これは「光の量そのもの」を指す約束の場所なので、まちがいです。</p>
+
+<p>ここがずれていると、第5章で見た計算がすべて狂います。ぼかしても合成しても、光の量ではない数字を混ぜることになるからです。<strong>たった1行のまちがいで、作品全体がおかしくなります。</strong></p>
+
+<h2 class="step step-fix" data-step="なおす">現場ではどう使うか</h2>
+
+<p>実際の作業では、パソコンの <span class="term">環境変数 OCIO</span> に、この config.ocio の場所を設定します。</p>
+
+<pre><code># Mac や Linux の場合
+export OCIO=/Users/あなた/projects/gakuensai/config.ocio</code></pre>
+
+<p>こうしておくと、OCIO に対応したソフトが起動時にこのファイルを読み、全部が同じ変換を使うようになります。チーム全員が同じファイルを共有すれば、全員の画面で同じ色になります。</p>
+
+<p>自分でゼロから書く必要もありません。ACES 用の config は公式に配布されていて、CG 向けの軽いものと、映画制作向けの大きなものがあります。ふつうはそれを使います。</p>
+
+<div class="callout callout-warn">
+  <p class="note-title">このエディタについて</p>
+  <p>このサイトのエディタは学習用の簡略版です。本物の OpenColorIO の機能のうち、話に必要な部分だけを再現しています。対応していない書きかたは、黙って無視せずエラーとして表示します。</p>
+  <p>ここで書いた設定は、<code>LEARNING -</code> で始まる行を除けば、本物の OpenColorIO でも読める形です。</p>
+</div>
+
+<div class="recap">
+  <h3>この章のまとめ</h3>
+  <ul>
+    <li>config.ocio は、変換のルールを書いた1つのテキストファイル。</li>
+    <li>覚えるのは roles, colorspaces, displays, views, looks の5つ。</li>
+    <li>roles は「役割の名前」で色空間を探すしくみ。ここがずれると計算が全部狂う。</li>
+    <li>環境変数 OCIO でファイルの場所を教えると、対応ソフトがそろって同じ設定を使う。</li>
+  </ul>
+</div>
 <!-- BODY:END -->
 <nav class="chapter-foot" aria-label="前後の章">
     <a class="prev" href="ch06.html" rel="prev"><span class="dir">まえ</span><span class="ttl">OCIO の登場</span></a>
