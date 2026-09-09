@@ -53,7 +53,11 @@
 - `aces_interchange`
 - `cie_xyz_d65_interchange`
 
-必須ロールが欠けている場合はエラー。存在しない色空間を指しているロールもエラー。第7章の課題2はこの挙動を利用する。
+必須ロールが欠けている場合はエラー。存在しない色空間を指しているロールもエラー。
+
+さらに、**`scene_linear` ロールが `encoding: scene-linear` 以外の色空間を指している場合もエラー**にする。
+ここがずれていると合成の計算がすべて狂うが、放っておくと絵が「なんとなく変」なだけで
+原因にたどり着けないため。第7章の課題2はこの検査を利用している。
 
 ### 2.3 `colorspaces`
 
@@ -93,6 +97,7 @@
 | `!<GroupTransform>` | ○ | ○ | `children` を順に適用。逆は逆順 |
 | `!<RangeTransform>` | ○ | △ | クランプありの場合は逆変換不可としてエラー |
 | `!<CDLTransform>` | ○ | × | slope/offset/power/sat。look 用 |
+| `!<SaturationTransform>` | ○ | ○ | 彩度だけを変える。本サイトの追加 |
 | `!<BuiltinTransform>` | △ | △ | 下表の限定リストのみ |
 | `!<FileTransform>` | × | × | 外部 LUT は読まない。明示エラー |
 | `!<LookTransform>` | ○ | ○ | look の適用 |
@@ -105,13 +110,16 @@
 
 学習に必要な最小限に絞る。それ以外は「未対応」と表示する。
 
-- `UTILITY - ACES-AP0_to_CIE-XYZ-D65_BFD`
 - `ACEScg_to_ACES2065-1`(内部行列で実装)
 - `ACEScct_to_ACES2065-1`
+- `UTILITY - ACES-AP0_to_CIE-XYZ-D65_BFD`(本サイトでは XYZ の代わりに sRGB 座標を使う。警告を出す)
 - `LEARNING - ACES_OUTPUT_SDR100`(本サイト独自の簡略出力変換)
+- `LEARNING - ACES_OUTPUT_REC709`
 - `LEARNING - ACES_OUTPUT_HDR1000_PQ`
 - `LEARNING - ACES_OUTPUT_HDR4000_PQ`
 - `LEARNING - ACES_OUTPUT_HLG`
+
+一覧の実装は `js/core/ocio-mini.js` の `BUILTIN_STYLES`。
 
 `LEARNING - ` で始まる style は **本サイト専用の簡略実装**。本物の OCIO では動かないことを、エディタ上でその行にバッジを出して明示する。教材の中でしか使わないと文章でも書く。実物の `ACES 1.x` / `ACES 2.0` の Output Transform を名乗らせない。
 
