@@ -1,4 +1,4 @@
-// I-08 学園祭プロジェクト事故シミュレータ(第6章)
+// I-08 素材ばらばら事故シミュレータ(第6章)
 // ねらい: 素材ごとに色空間がちがうと、作品として成立しないと知る。
 
 import {
@@ -29,7 +29,7 @@ const CLIPS = [
   },
   {
     id: 'cg',
-    label: '友だちの3DCG',
+    label: '外注の3DCG',
     scene: 'cgball',
     realSpace: 'linear',
     note: '光の量そのまま',
@@ -80,7 +80,7 @@ function bakeChain(realSpace) {
 
 export default function i08(mount) {
   const w = createWidget(mount, {
-    title: '学園祭ムービーの素材を1つにまとめる',
+    title: '4つの素材を1つの作品にまとめる',
     aim: '4つの素材をそのまま並べると、明るさも色もバラバラです。スイッチを入れると、そろいます。',
     simplified: true,
     wide: true,

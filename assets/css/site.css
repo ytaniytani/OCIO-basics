@@ -870,7 +870,7 @@ td.num, th.num { white-space: nowrap; }
   max-width: none;
 }
 
-/* ---------- 学園祭タイムライン(I-08) ---------- */
+/* ---------- 素材タイムライン(I-08) ---------- */
 
 .timeline { display: flex; gap: .25rem; }
 .strip-canvas { flex: 1 1 0; min-width: 0; height: auto; border-radius: 4px; background: #000; }
