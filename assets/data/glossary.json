@@ -1,0 +1,515 @@
+[
+ {
+  "term": "色空間",
+  "en": "color space",
+  "section": "色のきほん",
+  "simple": "色の「単位」の決め方",
+  "detail": "数字にどんな色を割り当てるかの約束。原色の位置・白の色・数値と明るさの関係、の3点セット。",
+  "chapter": "第2章",
+  "href": "ch02.html"
+ },
+ {
+  "term": "色域",
+  "en": "gamut",
+  "section": "色のきほん",
+  "simple": "使える色の広さ",
+  "detail": "その色空間で表現できる色の範囲。色度図の三角形の大きさ。",
+  "chapter": "第2章",
+  "href": "ch02.html"
+ },
+ {
+  "term": "白色点",
+  "en": "white point",
+  "section": "色のきほん",
+  "simple": "「白」をどの色にするか",
+  "detail": "D65 は昼の空の光に近い白。",
+  "chapter": "第2章",
+  "href": "ch02.html"
+ },
+ {
+  "term": "原色",
+  "en": "primaries",
+  "section": "色のきほん",
+  "simple": "混ぜるもとの3色",
+  "detail": "赤・緑・青をそれぞれどこに置くか。",
+  "chapter": "第2章",
+  "href": "ch02.html"
+ },
+ {
+  "term": "伝達関数",
+  "en": "transfer function",
+  "section": "色のきほん",
+  "simple": "数字の曲げ方",
+  "detail": "光の量と保存する数値の対応ルール。",
+  "chapter": "第3章",
+  "href": "ch03.html"
+ },
+ {
+  "term": "ガンマ",
+  "en": "gamma",
+  "section": "色のきほん",
+  "simple": "数字の曲げ方の一種",
+  "detail": "いちばん単純な形の伝達関数。",
+  "chapter": "第3章",
+  "href": "ch03.html"
+ },
+ {
+  "term": "リニア",
+  "en": "linear",
+  "section": "色のきほん",
+  "simple": "まっすぐ",
+  "detail": "光の量と数値が比例している状態。",
+  "chapter": "第3章",
+  "href": "ch03.html"
+ },
+ {
+  "term": "シーンリニア",
+  "en": "scene-referred linear",
+  "section": "色のきほん",
+  "simple": "光の量そのもの",
+  "detail": "現場にあった光の量に比例した数値。1.0 を超えてもよい。",
+  "chapter": "第3章",
+  "href": "ch03.html"
+ },
+ {
+  "term": "ディスプレイ参照",
+  "en": "display-referred",
+  "section": "色のきほん",
+  "simple": "画面用に加工ずみ",
+  "detail": "画面に出すことを前提にした数値。ふつう 0〜1。",
+  "chapter": "第3章",
+  "href": "ch03.html"
+ },
+ {
+  "term": "中間グレー",
+  "en": "middle grey",
+  "section": "色のきほん",
+  "simple": "まんなかの明るさ",
+  "detail": "光の量では 0.18 くらい。sRGB では 8bit で 118 前後。",
+  "chapter": "第3章",
+  "href": "ch03.html"
+ },
+ {
+  "term": "ダイナミックレンジ",
+  "en": "",
+  "section": "色のきほん",
+  "simple": "明るさの守備範囲",
+  "detail": "一番暗いところと一番明るいところの幅。",
+  "chapter": "第4章",
+  "href": "ch04.html"
+ },
+ {
+  "term": "白飛び",
+  "en": "clipping",
+  "section": "色のきほん",
+  "simple": "真っ白でつぶれる",
+  "detail": "記録できる上限を超えて情報が消えること。もどらない。",
+  "chapter": "第4章",
+  "href": "ch04.html"
+ },
+ {
+  "term": "ビット深度",
+  "en": "bit depth",
+  "section": "色のきほん",
+  "simple": "数字のこまかさ",
+  "detail": "8bit なら256段階、10bit なら1024段階。",
+  "chapter": "第4章",
+  "href": "ch04.html"
+ },
+ {
+  "term": "float",
+  "en": "浮動小数点",
+  "section": "色のきほん",
+  "simple": "小数で持つ",
+  "detail": "1.0 を超える明るさも記録できる。",
+  "chapter": "第4章",
+  "href": "ch04.html"
+ },
+ {
+  "term": "sRGB",
+  "en": "",
+  "section": "色空間の名前",
+  "simple": "パソコンやスマホの標準",
+  "detail": "いちばん普及している表示用の色空間。",
+  "chapter": "第2章",
+  "href": "ch02.html"
+ },
+ {
+  "term": "Rec.709",
+  "en": "",
+  "section": "色空間の名前",
+  "simple": "テレビの標準",
+  "detail": "sRGB とほぼ同じ色域。伝達関数の扱いが少し違う。",
+  "chapter": "第2章",
+  "href": "ch02.html"
+ },
+ {
+  "term": "Display P3",
+  "en": "",
+  "section": "色空間の名前",
+  "simple": "少し広い",
+  "detail": "最近のスマホやMacの画面。赤と緑が sRGB より濃く出せる。",
+  "chapter": "第2章",
+  "href": "ch02.html"
+ },
+ {
+  "term": "Rec.2020",
+  "en": "",
+  "section": "色空間の名前",
+  "simple": "かなり広い",
+  "detail": "4K/8K放送や HDR で使う。",
+  "chapter": "第2章",
+  "href": "ch02.html"
+ },
+ {
+  "term": "ACES2065-1",
+  "en": "AP0",
+  "section": "色空間の名前",
+  "simple": "保存と受け渡し用",
+  "detail": "ACES のいちばん広い色空間。人の目に見えない色まで含む。",
+  "chapter": "第8章",
+  "href": "ch08.html"
+ },
+ {
+  "term": "ACEScg",
+  "en": "AP1",
+  "section": "色空間の名前",
+  "simple": "CGと合成の作業用",
+  "detail": "リニアで扱いやすい。ACES で作業するときの主役。",
+  "chapter": "第8章",
+  "href": "ch08.html"
+ },
+ {
+  "term": "ACEScc / ACEScct",
+  "en": "",
+  "section": "色空間の名前",
+  "simple": "色を調整するとき用",
+  "detail": "対数のカーブ。ACEScct は暗いところの操作感が従来機に近い。",
+  "chapter": "第8章",
+  "href": "ch08.html"
+ },
+ {
+  "term": "Log",
+  "en": "",
+  "section": "色空間の名前",
+  "simple": "眠い灰色に見えるやつ",
+  "detail": "広い明るさを少ないビットに詰め込む記録方式。カメラごとに種類がある。",
+  "chapter": "第6章",
+  "href": "ch06.html"
+ },
+ {
+  "term": "OpenColorIO",
+  "en": "OCIO",
+  "section": "OCIO",
+  "simple": "色の翻訳係",
+  "detail": "どの色空間からどの色空間へどう変換するかをまとめて、いろんなソフトに同じ答えを出させる仕組み。",
+  "chapter": "第6章",
+  "href": "ch06.html"
+ },
+ {
+  "term": "config.ocio",
+  "en": "",
+  "section": "OCIO",
+  "simple": "変換のルールブック",
+  "detail": "OCIO の設定を書いた1つの YAML ファイル。",
+  "chapter": "第7章",
+  "href": "ch07.html"
+ },
+ {
+  "term": "colorspaces",
+  "en": "",
+  "section": "OCIO",
+  "simple": "色空間の一覧",
+  "detail": "config でどんな色空間を扱うかの定義。",
+  "chapter": "第7章",
+  "href": "ch07.html"
+ },
+ {
+  "term": "roles",
+  "en": "",
+  "section": "OCIO",
+  "simple": "役割の割りあて",
+  "detail": "「作業用はこれ」「表示用はこれ」と名前で決めておく仕組み。ソフトはこの名前で色空間を探す。",
+  "chapter": "第7章",
+  "href": "ch07.html"
+ },
+ {
+  "term": "displays / views",
+  "en": "",
+  "section": "OCIO",
+  "simple": "表示先と見え方",
+  "detail": "どの画面に、どの見た目で出すかの組み合わせ。",
+  "chapter": "第7章",
+  "href": "ch07.html"
+ },
+ {
+  "term": "looks",
+  "en": "",
+  "section": "OCIO",
+  "simple": "味付けの登録",
+  "detail": "config に書いておける調整。第7章・",
+  "chapter": "第9章",
+  "href": "ch09.html"
+ },
+ {
+  "term": "環境変数 OCIO",
+  "en": "",
+  "section": "OCIO",
+  "simple": "どの config を使うかの指定",
+  "detail": "パソコンにパスを設定すると、対応ソフトがそろってその config を使う。",
+  "chapter": "第7章",
+  "href": "ch07.html"
+ },
+ {
+  "term": "LUT",
+  "en": "Look-Up Table",
+  "section": "OCIO",
+  "simple": "変換の早見表",
+  "detail": "計算のかわりに表を引いて色を変える方法。`.cube` などのファイル。",
+  "chapter": "付録",
+  "href": ""
+ },
+ {
+  "term": "ACES",
+  "en": "",
+  "section": "ACES",
+  "simple": "映画業界の共通ルール",
+  "detail": "Academy Color Encoding System。どのカメラの絵も同じ場所に集めて作業するやり方。",
+  "chapter": "第8章",
+  "href": "ch08.html"
+ },
+ {
+  "term": "入力変換",
+  "en": "Input Transform / IDT",
+  "section": "ACES",
+  "simple": "素材を共通の場所に翻訳",
+  "detail": "カメラごとの絵を ACES の座標に持ってくる。",
+  "chapter": "第8章",
+  "href": "ch08.html"
+ },
+ {
+  "term": "出力変換",
+  "en": "Output Transform",
+  "section": "ACES",
+  "simple": "見る機械に合わせて刷る",
+  "detail": "ACES のデータを、その画面で正しく見える形に変換する。ACES 1.x では RRT と ODT の2段だった。ACES 2.0 では1つにまとまった。",
+  "chapter": "第8章",
+  "href": "ch08.html"
+ },
+ {
+  "term": "RRT",
+  "en": "Reference Rendering Transform",
+  "section": "ACES",
+  "simple": "共通の見た目づくり(ACES 1.x)",
+  "detail": "どの出力にも共通でかかる仕上げ。",
+  "chapter": "第8章",
+  "href": "ch08.html"
+ },
+ {
+  "term": "ODT",
+  "en": "Output Device Transform",
+  "section": "ACES",
+  "simple": "出力機器ごとの調整(ACES 1.x)",
+  "detail": "RRT のあとで、画面ごとの違いを合わせる。",
+  "chapter": "第8章",
+  "href": "ch08.html"
+ },
+ {
+  "term": "LMT",
+  "en": "Look Modification Transform",
+  "section": "ACES",
+  "simple": "作品全体の味付け",
+  "detail": "出力変換の前に入れる。",
+  "chapter": "第9章",
+  "href": "ch09.html"
+ },
+ {
+  "term": "トーンマッピング",
+  "en": "tone mapping",
+  "section": "ACES",
+  "simple": "広い明るさを画面に押し込む",
+  "detail": "明るすぎる部分をなだらかに丸めて表示できる形にする。",
+  "chapter": "第8章",
+  "href": "ch08.html"
+ },
+ {
+  "term": "カラーグレーディング",
+  "en": "",
+  "section": "グレーディング",
+  "simple": "色の味付け",
+  "detail": "明るさと色みを整えて作品の雰囲気を作る作業。",
+  "chapter": "第9章",
+  "href": "ch09.html"
+ },
+ {
+  "term": "カラーコレクション",
+  "en": "",
+  "section": "グレーディング",
+  "simple": "色をそろえる",
+  "detail": "カットごとのばらつきを合わせる作業。グレーディングの前段。",
+  "chapter": "第9章",
+  "href": "ch09.html"
+ },
+ {
+  "term": "CDL",
+  "en": "ASC CDL",
+  "section": "グレーディング",
+  "simple": "調整のかんたんな共通形式",
+  "detail": "slope・offset・power・saturation の4つで表す。ソフト間で持ち運べる。",
+  "chapter": "第9章",
+  "href": "ch09.html"
+ },
+ {
+  "term": "ショットグレード",
+  "en": "",
+  "section": "グレーディング",
+  "simple": "カット単位の調整",
+  "detail": "作品全体の LMT とは別に、1カットずつ合わせる。",
+  "chapter": "第9章",
+  "href": "ch09.html"
+ },
+ {
+  "term": "リフト / ガンマ / ゲイン",
+  "en": "",
+  "section": "グレーディング",
+  "simple": "暗い所・中くらい・明るい所",
+  "detail": "グレーディングでよく使う3つのつまみ。",
+  "chapter": "第9章",
+  "href": "ch09.html"
+ },
+ {
+  "term": "SDR",
+  "en": "Standard Dynamic Range",
+  "section": "HDR",
+  "simple": "今までの映像",
+  "detail": "白いところが 100 nit くらいを想定して作られている。",
+  "chapter": "第10章",
+  "href": "ch10.html"
+ },
+ {
+  "term": "HDR",
+  "en": "High Dynamic Range",
+  "section": "HDR",
+  "simple": "明るいところがもっと明るい映像",
+  "detail": "1000 nit 以上を扱える。",
+  "chapter": "第10章",
+  "href": "ch10.html"
+ },
+ {
+  "term": "nit",
+  "en": "cd/m²",
+  "section": "HDR",
+  "simple": "明るさの単位",
+  "detail": "画面がどれくらい強く光るか。室内の紙は数十、スマホの白は 400〜1000、晴れた空は数千以上。",
+  "chapter": "第10章",
+  "href": "ch10.html"
+ },
+ {
+  "term": "PQ",
+  "en": "ST 2084",
+  "section": "HDR",
+  "simple": "絶対的な明るさで指定する方式",
+  "detail": "「ここは 500 nit」と決め打ちする。配信やディスクで使う。",
+  "chapter": "第10章",
+  "href": "ch10.html"
+ },
+ {
+  "term": "HLG",
+  "en": "Hybrid Log-Gamma",
+  "section": "HDR",
+  "simple": "従来テレビとも両立する方式",
+  "detail": "放送で使う。画面の明るさに合わせて伸び縮みする。",
+  "chapter": "第10章",
+  "href": "ch10.html"
+ },
+ {
+  "term": "Rec.2100",
+  "en": "",
+  "section": "HDR",
+  "simple": "HDR の規格",
+  "detail": "Rec.2020 の色域に PQ か HLG を組み合わせたもの。",
+  "chapter": "第10章",
+  "href": "ch10.html"
+ },
+ {
+  "term": "1マスター多出力",
+  "en": "",
+  "section": "HDR",
+  "simple": "1本作って何通りにも出す",
+  "detail": "ACES で作っておけば、出力変換を差し替えるだけで劇場用・SDR用・HDR用が出せる。",
+  "chapter": "第10章",
+  "href": "ch10.html"
+ },
+ {
+  "term": "アルファ合成",
+  "en": "alpha compositing",
+  "section": "合成・CG",
+  "simple": "半透明の重ね合わせ",
+  "detail": "リニア空間でやらないと境界が汚くなる。",
+  "chapter": "第5章",
+  "href": "ch05.html"
+ },
+ {
+  "term": "プリマルチプライ",
+  "en": "premultiplied alpha",
+  "section": "合成・CG",
+  "simple": "色に透明度をかけてある状態",
+  "detail": "合成のときの標準的な持ち方。",
+  "chapter": "付録",
+  "href": ""
+ },
+ {
+  "term": "グロー / ブルーム",
+  "en": "",
+  "section": "合成・CG",
+  "simple": "光のにじみ",
+  "detail": "明るいところが周りにあふれる表現。リニアでないと不自然になる。",
+  "chapter": "第5章",
+  "href": "ch05.html"
+ },
+ {
+  "term": "EXR",
+  "en": "OpenEXR",
+  "section": "合成・CG",
+  "simple": "明るさを広く記録できる画像形式",
+  "detail": "float で保存でき、1.0 を超える値も持てる。CG と合成の標準。",
+  "chapter": "第4章",
+  "href": "ch04.html"
+ },
+ {
+  "term": "トーンカーブ",
+  "en": "",
+  "section": "合成・CG",
+  "simple": "明るさの変換曲線",
+  "detail": "入力の明るさを出力の明るさに写す線。",
+  "chapter": "第3章",
+  "href": "ch03.html"
+ },
+ {
+  "term": "ICC プロファイル",
+  "en": "",
+  "section": "そのほか",
+  "simple": "印刷や写真の世界の色管理",
+  "detail": "OCIO とは別系統の仕組み。用途と考え方が違う。",
+  "chapter": "付録",
+  "href": ""
+ },
+ {
+  "term": "色度図",
+  "en": "chromaticity diagram",
+  "section": "そのほか",
+  "simple": "色の地図",
+  "detail": "明るさを除いた「色み」だけを平面に並べた図。馬蹄形。",
+  "chapter": "第2章",
+  "href": "ch02.html"
+ },
+ {
+  "term": "色覚多様性",
+  "en": "",
+  "section": "そのほか",
+  "simple": "色の見え方の個人差",
+  "detail": "色だけで情報を伝えないことが大切。",
+  "chapter": "第2章",
+  "href": "ch02.html"
+ }
+]

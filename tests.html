@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>テスト | 色のきほん</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%277%27 fill=%27%239a3d12%27/%3E%3C/svg%3E">
+<link rel="stylesheet" href="assets/css/site.css">
+<script type="module">
+  import { run } from './js/core/tests.js';
+  run(document.getElementById('results'));
+</script>
+</head>
+<body>
+<header class="site-header">
+  <div class="site-header-inner">
+    <p class="site-title"><a href="index.html">色<span>の</span>きほん</a></p>
+  </div>
+</header>
+<main>
+<h1>テスト</h1>
+<p>色の計算・変換・設定ファイルの読みとりが、正しく動いているかを確かめるページです。ビルドは要りません。このファイルを開くだけで走ります。</p>
+<p>読者向けのページではありませんが、隠してもいないので誰でも見られます。<a href="docs/OCIO-ENGINE.md">エンジンの仕様</a>の8節に対応しています。</p>
+<div id="results"><p>テストを走らせています…</p></div>
+</main>
+</body>
+</html>

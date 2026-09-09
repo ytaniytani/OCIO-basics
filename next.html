@@ -37,10 +37,60 @@
 </header>
 <main>
 <!-- BODY:START -->
-<p class="chapter-kicker">第付録B章</p>
+<p class="chapter-kicker">付録B</p>
 <h1>次に何をする?</h1>
-<p class="lead">無料で試せる道具と、公式の資料</p>
-<p>(この章の本文はこれから書きます。)</p>
+<p class="lead">考えかたは分かりました。あとは実際に道具をさわるだけです。全部、無料ではじめられます。</p>
+
+<h2>今日ためせるもの</h2>
+
+<div class="table-wrap">
+<table>
+<thead><tr><th>ソフト</th><th>できること</th><th>おすすめの入口</th></tr></thead>
+<tbody>
+<tr><td><strong>Blender</strong></td><td>3DCG。OCIO が最初から入っている</td><td>レンダー設定の「カラーマネジメント」を開く。View Transform を切りかえて、絵がどう変わるか見る</td></tr>
+<tr><td><strong>DaVinci Resolve</strong>(無償版)</td><td>編集とカラーグレーディング</td><td>プロジェクト設定でカラーサイエンスを ACEScct にしてみる</td></tr>
+<tr><td><strong>Krita</strong></td><td>お絵かき。OCIO 対応</td><td>リニアの色空間で描いて、ぼかしの結果を比べてみる</td></tr>
+<tr><td><strong>Natron</strong></td><td>合成(コンポジット)</td><td>第5章でやった実験を、本物のソフトでやってみる</td></tr>
+<tr><td><strong>OpenColorIO</strong> 本体</td><td>コマンドラインの道具一式</td><td><code>ociochecklut</code> や <code>ocioconvert</code> で変換を試す</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2>やってみるといい3つ</h2>
+
+<ol>
+  <li><strong>Blender で View Transform を切りかえる。</strong> 標準の設定と「Standard」を見くらべてください。第8章でやった出力変換の差しかえと、まったく同じことです。</li>
+  <li><strong>自分のスマホの写真を、わざとちがう色空間として開いてみる。</strong> 第2章のタグ違い事故を、本物のファイルで再現できます。</li>
+  <li><strong>ACES 用の config.ocio をダウンロードして、中身を読む。</strong> 第7章で見た構造と同じです。ずっと長いですが、書いてあることは同じ5種類です。</li>
+</ol>
+
+<h2>公式の資料</h2>
+
+<ul>
+  <li><a href="https://opencolorio.org/">OpenColorIO 公式サイト</a> — ドキュメントと、配布されている config があります。</li>
+  <li><a href="https://acescentral.com/">ACEScentral</a> — ACES の公式コミュニティ。仕様書へのリンクもここから。</li>
+  <li><a href="https://docs.acescentral.com/">ACES ドキュメント</a> — 各変換の定義が読めます。</li>
+</ul>
+
+<div class="note">
+  <p class="note-title">英語のページが多いです</p>
+  <p>色管理の一次資料は、ほとんどが英語です。でも、ここまで読んだあなたはもう用語の意味を知っています。知らない単語は用語集で日本語を確かめながら読めば、思ったより読めます。</p>
+</div>
+
+<h2>このサイトについて</h2>
+
+<p>このサイトのソースコードと仕様書は、GitHub で公開しています。色空間の定義や変換の計算がどう実装されているかも、全部読めます。</p>
+
+<ul>
+  <li><a href="https://github.com/ytaniytani/OCIO-basics">ytaniytani/OCIO-basics</a></li>
+  <li>仕様書: <code>docs/SPEC.md</code>、部品の仕様: <code>docs/INTERACTIVES.md</code>、エンジンの仕様: <code>docs/OCIO-ENGINE.md</code></li>
+</ul>
+
+<div class="callout callout-warn">
+  <p class="note-title">もう一度だけ書いておきます</p>
+  <p>このサイトの出力変換とミニ OCIO エンジンは、学習用の簡略版です。本物の ACES や OpenColorIO とは、細かいところがちがいます。実際の仕事では本物を使ってください。</p>
+  <p>ただし、色空間の定義・変換の行列・明るさの計算は、公表されている規格の値をそのまま使っています。ここで身につけた考えかたは、そのまま通用します。</p>
+</div>
 <!-- BODY:END -->
 <nav class="chapter-foot" aria-label="前後の章">
     <a class="prev" href="glossary.html" rel="prev"><span class="dir">まえ</span><span class="ttl">用語集</span></a>

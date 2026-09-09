@@ -41,7 +41,8 @@ function makeRandom(seed) {
 // ---------------------------------------------------------------------------
 // シーン1: 逆光の部屋(室内 + 明るい窓)
 // 第4章の白飛び体験、第10章の HDR 比較で使います。
-// 室内は 0.02〜0.4、窓の外は 150〜8000。明るさの比はおよそ 1 : 40 万。
+// 室内は 0.02〜0.2、窓の外は 6〜20、太陽の芯だけ 250 くらい。
+// 明るさの比はおよそ 1 : 1万。SDR では窓が飛び、HDR 1000 nit では階調が残る値にしてあります。
 // ---------------------------------------------------------------------------
 
 export function sceneWindow(width = 640, height = 360) {
@@ -65,13 +66,13 @@ export function sceneWindow(width = 640, height = 360) {
       if (inWindow) {
         // 窓の外。上ほど濃い青空、下は明るい地面。太陽が右上に小さく入ります。
         const sv = (v - windowTop) / (windowBottom - windowTop);
-        const sky = mix([600, 900, 1600], [1400, 1500, 1500], smoothstep(0.0, 0.75, sv));
-        const ground = [900, 800, 500];
+        const sky = mix([7.5, 11, 19], [16, 17.5, 18], smoothstep(0.0, 0.75, sv));
+        const ground = [11, 9.5, 6];
         c = mix(sky, ground, smoothstep(0.78, 0.86, sv));
         // 太陽
         const sx = (u - 0.84) * width / height, sy = sv - 0.18;
         const d = Math.sqrt(sx * sx + sy * sy);
-        const sun = Math.exp(-d * d / 0.0016) * 9000 + Math.exp(-d * d / 0.05) * 900;
+        const sun = Math.exp(-d * d / 0.0016) * 260 + Math.exp(-d * d / 0.05) * 22;
         c = [c[0] + sun, c[1] + sun * 0.97, c[2] + sun * 0.9];
         // 窓わく(格子)
         const gx = Math.abs(u - (windowLeft + windowRight) / 2) < 0.006;
@@ -193,7 +194,7 @@ export function sceneSunset(width = 640, height = 360) {
       // 太陽
       const sx = (u - 0.62) * width / height, sy = v - 0.34;
       const d = Math.sqrt(sx * sx + sy * sy);
-      const sun = Math.exp(-d * d / 0.0009) * 2200 + Math.exp(-d * d / 0.02) * 25;
+      const sun = Math.exp(-d * d / 0.0009) * 110 + Math.exp(-d * d / 0.02) * 9;
       c = [c[0] + sun, c[1] + sun * 0.72, c[2] + sun * 0.38];
       // 水平線から下は海。空を映します。
       if (v > 0.72) {
@@ -324,25 +325,26 @@ function normalize(v) {
 
 export function sceneNight(width = 640, height = 360) {
   const img = new FloatImage(width, height);
+  // 明るさは SDR で飛び、HDR 1000 nit では階調が残る範囲にそろえてあります。
   const lamps = [
-    { x: 0.18, y: 0.32, r: 0.012, i: 2600, c: [1.0, 0.88, 0.62] },
-    { x: 0.47, y: 0.26, r: 0.010, i: 3400, c: [1.0, 0.92, 0.75] },
-    { x: 0.78, y: 0.34, r: 0.011, i: 2200, c: [1.0, 0.86, 0.58] },
+    { x: 0.18, y: 0.32, r: 0.012, i: 42, c: [1.0, 0.88, 0.62] },
+    { x: 0.47, y: 0.26, r: 0.010, i: 58, c: [1.0, 0.92, 0.75] },
+    { x: 0.78, y: 0.34, r: 0.011, i: 34, c: [1.0, 0.86, 0.58] },
   ];
   const neons = [
-    { x0: 0.06, x1: 0.30, y0: 0.55, y1: 0.61, i: 120, c: [1.0, 0.15, 0.35] },
-    { x0: 0.62, x1: 0.90, y0: 0.48, y1: 0.53, i: 90, c: [0.20, 0.85, 1.0] },
-    { x0: 0.36, x1: 0.55, y0: 0.66, y1: 0.70, i: 70, c: [0.35, 1.0, 0.45] },
+    { x0: 0.06, x1: 0.30, y0: 0.55, y1: 0.61, i: 16, c: [1.0, 0.15, 0.35] },
+    { x0: 0.62, x1: 0.90, y0: 0.48, y1: 0.53, i: 11, c: [0.20, 0.85, 1.0] },
+    { x0: 0.36, x1: 0.55, y0: 0.66, y1: 0.70, i: 8, c: [0.35, 1.0, 0.45] },
   ];
   for (let y = 0; y < height; y++) {
     const v = y / height;
     for (let x = 0; x < width; x++) {
       const u = x / width;
       // 夜空と建物のシルエット
-      let c = mix([0.010, 0.013, 0.030], [0.002, 0.003, 0.010], smoothstep(0.0, 0.45, v));
+      let c = mix([0.028, 0.036, 0.082], [0.006, 0.008, 0.026], smoothstep(0.0, 0.45, v));
       if (v > 0.42) {
         const t = smoothstep(0.42, 1.0, v);
-        c = mix(c, [0.006, 0.006, 0.009], t);
+        c = mix(c, [0.016, 0.017, 0.024], t);
         // 濡れた路面の反射
         if (v > 0.74) c = [c[0] * 1.4, c[1] * 1.3, c[2] * 1.5];
       }
@@ -354,7 +356,7 @@ export function sceneNight(width = 640, height = 360) {
           const dx = Math.max(nn.x0 - u, 0, u - nn.x1);
           const dy = Math.max(nn.y0 - v, 0, v - nn.y1);
           const d = Math.sqrt(dx * dx + dy * dy);
-          const g = Math.exp(-d * d / 0.0025) * nn.i * 0.05;
+          const g = Math.exp(-d * d / 0.0025) * nn.i * 0.35;
           c = [c[0] + nn.c[0] * g, c[1] + nn.c[1] * g, c[2] + nn.c[2] * g];
         }
       }
@@ -363,13 +365,13 @@ export function sceneNight(width = 640, height = 360) {
         const dx = (u - l.x) * width / height, dy = v - l.y;
         const d = Math.sqrt(dx * dx + dy * dy);
         const core = d < l.r ? l.i : 0;
-        const glow = Math.exp(-d * d / 0.004) * l.i * 0.04 + Math.exp(-d * d / 0.06) * l.i * 0.004;
+        const glow = Math.exp(-d * d / 0.004) * l.i * 0.30 + Math.exp(-d * d / 0.06) * l.i * 0.03;
         const t = core + glow;
         c = [c[0] + l.c[0] * t, c[1] + l.c[1] * t, c[2] + l.c[2] * t];
         // 路面に落ちる光
         if (v > 0.74) {
           const rd = Math.abs(u - l.x);
-          const rl = Math.exp(-rd * rd / 0.02) * l.i * 0.0015 * (1 - (v - 0.74) / 0.26);
+          const rl = Math.exp(-rd * rd / 0.02) * l.i * 0.012 * (1 - (v - 0.74) / 0.26);
           c = [c[0] + l.c[0] * rl, c[1] + l.c[1] * rl, c[2] + l.c[2] * rl];
         }
       }
