@@ -7,37 +7,50 @@ import {
 import { GAMUTS, xyzToGamut, matApply, TRANSFERS } from '../core/color.js';
 
 // ---------------------------------------------------------------------------
-// CIE 1931 の等色関数を、なめらかな式で近似します。
-// 出典: Wyman, Sloan, Shirley (2013)
-//       "Simple Analytic Approximations to the CIE XYZ Color Matching Functions"
-// 馬蹄形を描くための近似で、測色の計算には使いません。
+// CIE 1931 (2度視野) のスペクトル軌跡。馬蹄形のふちの座標です。
+//
+// 出典: CIE 1931 標準表色系の色度座標表(5nm きざみ、380〜700nm)。
+//
+// 以前は解析近似の式を使っていましたが、700nm あたりで大きく外れ
+// (公表値 x=0.7347 に対して 0.5684)、馬蹄形の赤い先端が内側に
+// 折り返して切れて見えていました。そのため公表値の表に置きかえています。
+//
+// 700nm の点 (0.7347, 0.2653) は、ACES2065-1 (AP0) の赤の原色と同じ座標です。
+// AP0 の赤がスペクトル軌跡の上に乗っていることを、この図で確かめられます。
 // ---------------------------------------------------------------------------
 
-function gauss(x, mu, s1, s2) {
-  const s = x < mu ? s1 : s2;
-  const t = (x - mu) / s;
-  return Math.exp(-0.5 * t * t);
-}
+const SPECTRAL_LOCUS = [
+  [380, 0.1741, 0.0050], [385, 0.1740, 0.0050], [390, 0.1738, 0.0049],
+  [395, 0.1736, 0.0049], [400, 0.1733, 0.0048], [405, 0.1730, 0.0048],
+  [410, 0.1726, 0.0048], [415, 0.1721, 0.0048], [420, 0.1714, 0.0051],
+  [425, 0.1703, 0.0058], [430, 0.1689, 0.0069], [435, 0.1669, 0.0086],
+  [440, 0.1644, 0.0109], [445, 0.1611, 0.0138], [450, 0.1566, 0.0177],
+  [455, 0.1510, 0.0227], [460, 0.1440, 0.0297], [465, 0.1355, 0.0399],
+  [470, 0.1241, 0.0578], [475, 0.1096, 0.0868], [480, 0.0913, 0.1327],
+  [485, 0.0687, 0.2007], [490, 0.0454, 0.2950], [495, 0.0235, 0.4127],
+  [500, 0.0082, 0.5384], [505, 0.0039, 0.6548], [510, 0.0139, 0.7502],
+  [515, 0.0389, 0.8120], [520, 0.0743, 0.8338], [525, 0.1142, 0.8262],
+  [530, 0.1547, 0.8059], [535, 0.1929, 0.7816], [540, 0.2296, 0.7543],
+  [545, 0.2658, 0.7243], [550, 0.3016, 0.6923], [555, 0.3373, 0.6589],
+  [560, 0.3731, 0.6245], [565, 0.4087, 0.5896], [570, 0.4441, 0.5547],
+  [575, 0.4788, 0.5202], [580, 0.5125, 0.4866], [585, 0.5448, 0.4544],
+  [590, 0.5752, 0.4242], [595, 0.6029, 0.3965], [600, 0.6270, 0.3725],
+  [605, 0.6482, 0.3514], [610, 0.6658, 0.3340], [615, 0.6801, 0.3197],
+  [620, 0.6915, 0.3083], [625, 0.7006, 0.2993], [630, 0.7079, 0.2920],
+  [635, 0.7140, 0.2859], [640, 0.7190, 0.2809], [645, 0.7230, 0.2770],
+  [650, 0.7260, 0.2740], [655, 0.7283, 0.2717], [660, 0.7300, 0.2700],
+  [665, 0.7311, 0.2689], [670, 0.7320, 0.2680], [675, 0.7327, 0.2673],
+  [680, 0.7334, 0.2666], [685, 0.7340, 0.2660], [690, 0.7344, 0.2656],
+  [695, 0.7346, 0.2654], [700, 0.7347, 0.2653],
+];
 
-function cmf(lambda) {
-  const X = 1.056 * gauss(lambda, 599.8, 37.9, 31.0)
-    + 0.362 * gauss(lambda, 442.0, 16.0, 26.7)
-    - 0.065 * gauss(lambda, 501.1, 20.4, 26.2);
-  const Y = 0.821 * gauss(lambda, 568.8, 46.9, 40.5)
-    + 0.286 * gauss(lambda, 530.9, 16.3, 31.1);
-  const Z = 1.217 * gauss(lambda, 437.0, 11.8, 36.0)
-    + 0.681 * gauss(lambda, 459.0, 26.0, 13.8);
-  return [X, Y, Z];
-}
-
-function spectralLocus() {
-  const pts = [];
-  for (let l = 400; l <= 700; l += 2) {
-    const [X, Y, Z] = cmf(l);
-    const s = X + Y + Z;
-    if (s > 1e-6) pts.push([X / s, Y / s, l]);
-  }
-  return pts;
+/**
+ * 馬蹄形のふちの点を返します。
+ * 最後の点と最初の点を直線で結ぶと、下側の「純紫線」になります。
+ * @returns {Array<[number, number, number]>} [x, y, 波長] の並び
+ */
+export function spectralLocus() {
+  return SPECTRAL_LOCUS.map(([l, x, y]) => [x, y, l]);
 }
 
 // ---------------------------------------------------------------------------
@@ -146,14 +159,30 @@ export default function i04(mount) {
 
   const locus = spectralLocus();
 
-  // 図の中の座標変換。x は 0〜0.8、y は 0〜0.9 を表示します。
-  const XMAX = 0.8, YMAX = 0.9;
-  const gx = (x) => PAD + (x / XMAX) * (SIZE - PAD - 14);
-  const gy = (y) => SIZE - PAD - (y / YMAX) * (SIZE - PAD - 18);
+  // 表示する範囲。
+  // ふつうは馬蹄形がちょうど収まる範囲にします。
+  // ACES2065-1 (AP0) は原色が馬蹄形の外にあり、緑は y=1.0、青は y が負なので、
+  // その三角形を選んだときだけ範囲を広げます。そうしないと頂点が画面の外に出て、
+  // 「馬蹄形からはみ出している」ことが見えません。
+  const VIEW_NORMAL = { x0: 0, x1: 0.8, y0: 0, y1: 0.9 };
+  const VIEW_WIDE = { x0: -0.08, x1: 0.82, y0: -0.14, y1: 1.06 };
+  let view = VIEW_NORMAL;
 
-  // 馬蹄形の内側かどうかは、一度だけ塗りつぶして作ったマスクを見て決めます。
+  function syncView() {
+    view = active.has('AP0') ? VIEW_WIDE : VIEW_NORMAL;
+  }
+
+  const gx = (x) => PAD + ((x - view.x0) / (view.x1 - view.x0)) * (SIZE - PAD - 14);
+  const gy = (y) => SIZE - PAD - ((y - view.y0) / (view.y1 - view.y0)) * (SIZE - PAD - 18);
+
+  // 馬蹄形の内側かどうかは、一度塗りつぶして作ったマスクを見て決めます。
   // 画素ごとに多角形の判定をすると遅すぎるためです。
-  const mask = (() => {
+  // 表示範囲ごとに1枚作って、使いまわします。
+  const maskCache = new Map();
+
+  function getMask() {
+    const key = `${view.x0},${view.x1},${view.y0},${view.y1}`;
+    if (maskCache.has(key)) return maskCache.get(key);
     const c = document.createElement('canvas');
     c.width = SIZE; c.height = SIZE;
     const g = c.getContext('2d');
@@ -165,25 +194,32 @@ export default function i04(mount) {
     const d = g.getImageData(0, 0, SIZE, SIZE).data;
     const m = new Uint8Array(SIZE * SIZE);
     for (let i = 0; i < m.length; i++) m[i] = d[i * 4 + 3] > 128 ? 1 : 0;
+    maskCache.set(key, m);
     return m;
-  })();
+  }
 
-  function inLocusPixel(px2, py2) {
-    if (px2 < 0 || py2 < 0 || px2 >= SIZE || py2 >= SIZE) return false;
-    return mask[py2 * SIZE + px2] === 1;
+  /** 目もりを打つ位置。0.2 きざみで、いまの範囲に入るものだけ。 */
+  function ticks(lo, hi) {
+    const out = [];
+    for (let t = Math.ceil(lo / 0.2 - 1e-9) * 0.2; t <= hi + 1e-9; t += 0.2) {
+      out.push(Math.round(t * 100) / 100);
+    }
+    return out;
   }
 
   const xyzToSRGB = xyzToGamut('sRGB');
 
   function draw() {
+    syncView();
+    const mask = getMask();
     const ctx = canvas.getContext('2d');
     const im = ctx.createImageData(SIZE, SIZE);
     for (let py = 0; py < SIZE; py++) {
       for (let pxi = 0; pxi < SIZE; pxi++) {
         const i = (py * SIZE + pxi) * 4;
-        const x = (pxi - PAD) / (SIZE - PAD - 14) * XMAX;
-        const y = (SIZE - PAD - py) / (SIZE - PAD - 18) * YMAX;
-        if (y <= 1e-4 || !inLocusPixel(pxi, py)) { im.data[i + 3] = 0; continue; }
+        const x = view.x0 + (pxi - PAD) / (SIZE - PAD - 14) * (view.x1 - view.x0);
+        const y = view.y0 + (SIZE - PAD - py) / (SIZE - PAD - 18) * (view.y1 - view.y0);
+        if (y <= 1e-4 || mask[py * SIZE + pxi] !== 1) { im.data[i + 3] = 0; continue; }
         // その色度を、明るさをそろえて sRGB にします。
         const Y = 1, X = (x / y) * Y, Z = ((1 - x - y) / y) * Y;
         let rgb = matApply(xyzToSRGB, [X, Y, Z]);
@@ -213,18 +249,21 @@ export default function i04(mount) {
     ctx.lineWidth = 1;
     ctx.font = '11px system-ui, sans-serif';
     ctx.beginPath();
-    ctx.moveTo(gx(0), gy(0)); ctx.lineTo(gx(XMAX), gy(0));
-    ctx.moveTo(gx(0), gy(0)); ctx.lineTo(gx(0), gy(YMAX));
+    ctx.moveTo(gx(view.x0), gy(0)); ctx.lineTo(gx(view.x1), gy(0));
+    ctx.moveTo(gx(0), gy(view.y0)); ctx.lineTo(gx(0), gy(view.y1));
     ctx.stroke();
-    for (let t = 0; t <= 0.8001; t += 0.2) {
+    for (const t of ticks(view.x0, view.x1)) {
       ctx.textAlign = 'center';
       ctx.fillText(t.toFixed(1), gx(t), gy(0) + 15);
+    }
+    for (const t of ticks(view.y0, view.y1)) {
+      if (Math.abs(t) < 1e-9) continue;   // 原点は x 側と重なるので出しません
       ctx.textAlign = 'right';
-      if (t <= YMAX) ctx.fillText(t.toFixed(1), gx(0) - 6, gy(t) + 4);
+      ctx.fillText(t.toFixed(1), gx(0) - 6, gy(t) + 4);
     }
     ctx.textAlign = 'center';
-    ctx.fillText('x', gx(XMAX) + 8, gy(0) + 15);
-    ctx.fillText('y', gx(0) - 22, gy(YMAX) - 4);
+    ctx.fillText('x', gx(view.x1) + 8, gy(0) + 15);
+    ctx.fillText('y', gx(0) - 22, gy(view.y1) - 4);
 
     // 馬蹄形のふち
     ctx.strokeStyle = ink;
@@ -311,9 +350,12 @@ export default function i04(mount) {
     const r = canvas.getBoundingClientRect();
     const px = (e.clientX - r.left) / r.width * SIZE;
     const py = (e.clientY - r.top) / r.height * SIZE;
-    const x = (px - PAD) / (SIZE - PAD - 14) * XMAX;
-    const y = (SIZE - PAD - py) / (SIZE - PAD - 18) * YMAX;
-    if (y <= 1e-4 || !inLocusPixel(Math.round(px), Math.round(py))) {
+    const x = view.x0 + (px - PAD) / (SIZE - PAD - 14) * (view.x1 - view.x0);
+    const y = view.y0 + (SIZE - PAD - py) / (SIZE - PAD - 18) * (view.y1 - view.y0);
+    const m = getMask();
+    const ix = Math.round(px), iy = Math.round(py);
+    const inside = ix >= 0 && iy >= 0 && ix < SIZE && iy < SIZE && m[iy * SIZE + ix] === 1;
+    if (y <= 1e-4 || !inside) {
       probe = null;
       draw();
       w.say('馬蹄形の中をタップしてください。その外側の色は、この世に存在しません。');
@@ -341,7 +383,9 @@ export default function i04(mount) {
          だから三角形の外側の色は、正確には表示できていません。
          少し暗くしてある部分が「あなたの画面では出せない色」です。位置関係を見るための図だと思ってください。</p>
     </div>
-    <p><b>ACES2065-1 (AP0)</b> を表示すると、三角形が馬蹄形からはみ出します。
+    <p><b>ACES2065-1 (AP0)</b> を選ぶと、図の目もりの範囲が自動で広がります。
+       AP0 の緑は y=1.0、青は y がマイナスの位置にあり、ふつうの範囲では画面の外に出てしまうからです。</p>
+    <p>そして三角形が馬蹄形からはみ出します。
        人の目に見えない色まで含んでいるということです。
        わざとそうしてあります。将来どんなカメラや画面が出てきても、
        すべてを入れておける入れものにするためです。</p>

@@ -19,6 +19,7 @@ import {
 import { Renderer, FloatImage } from './render.js';
 import { loadConfig } from './ocio-mini.js';
 import { parseYAML, YamlError } from './yaml-mini.js';
+import { spectralLocus } from '../widgets/i04.js';
 
 const results = [];
 
@@ -151,6 +152,50 @@ test('PQ の既知値', () => {
   near(TRANSFERS.pq.encode(100 / 10000), 0.50808, 0.0001, '100 nit');
   near(TRANSFERS.pq.encode(1), 1, 1e-6, '10000 nit');
   return '100 nit → 0.50808';
+});
+
+test('色度図のスペクトル軌跡が公表値と一致する', () => {
+  // CIE 1931 (2度視野) の公表値。以前は解析近似を使っていて、
+  // 700nm で x=0.5684 と大きく外れ、馬蹄形の赤い先端が切れていた。
+  const REF = {
+    400: [0.1733, 0.0048], 480: [0.0913, 0.1327], 500: [0.0082, 0.5384],
+    520: [0.0743, 0.8338], 550: [0.3016, 0.6923], 600: [0.6270, 0.3725],
+    700: [0.7347, 0.2653],
+  };
+  const pts = spectralLocus();
+  for (const [nm, ref] of Object.entries(REF)) {
+    const p = pts.find((q) => q[2] === Number(nm));
+    if (!p) throw new Error(`${nm}nm の点がありません`);
+    near(p[0], ref[0], 1e-4, `${nm}nm の x`);
+    near(p[1], ref[1], 1e-4, `${nm}nm の y`);
+  }
+  return `${pts.length} 点。両端と頂点を含む 7 波長で一致`;
+});
+
+test('馬蹄形が途中で折り返していない', () => {
+  // 端の点が内側に折り返すと、図が切れて見える。
+  // 波長が増えるほど右下へ向かうこと(560nm 以降)を確かめる。
+  const pts = spectralLocus().filter((p) => p[2] >= 560);
+  for (let i = 1; i < pts.length; i++) {
+    if (pts[i][0] < pts[i - 1][0] - 1e-9) {
+      throw new Error(`${pts[i][2]}nm で x が左に戻っています (${pts[i][0]} < ${pts[i - 1][0]})`);
+    }
+    if (pts[i][1] > pts[i - 1][1] + 1e-9) {
+      throw new Error(`${pts[i][2]}nm で y が上に戻っています`);
+    }
+  }
+  const last = pts[pts.length - 1];
+  return `560nm から ${last[2]}nm まで単調。終点 (${last[0]}, ${last[1]})`;
+});
+
+test('ACES AP0 の赤の原色がスペクトル軌跡の上にある', () => {
+  // AP0 の赤は 700nm の単色光と同じ座標に定義されている。
+  // 第2章で「AP0 は馬蹄形をはみ出す」と説明する際の土台になる。
+  const red = GAMUTS.AP0.primaries.red;
+  const tip = spectralLocus().find((p) => p[2] === 700);
+  near(red[0], tip[0], 1e-4, 'AP0 の赤の x');
+  near(red[1], tip[1], 1e-4, 'AP0 の赤の y');
+  return `AP0 の赤 (${red[0]}, ${red[1]}) = 700nm の点`;
 });
 
 // ---------------------------------------------------------------------------
