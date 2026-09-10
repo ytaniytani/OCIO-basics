@@ -117,6 +117,15 @@
   "href": "ch04.html"
  },
  {
+  "term": "段",
+  "en": "stop / EV",
+  "section": "色のきほん",
+  "simple": "光の量の2倍きざみ",
+  "detail": "1段上がると光が2倍、1段下がると半分。13段なら約1万倍。",
+  "chapter": "第4章",
+  "href": "ch04.html"
+ },
+ {
   "term": "白飛び",
   "en": "clipping",
   "section": "色のきほん",
