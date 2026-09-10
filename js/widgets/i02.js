@@ -6,18 +6,18 @@ import { TRANSFERS, to8bit } from '../core/color.js';
 
 const QUESTIONS = [
   {
-    q: '白い紙にあてる光を、ちょうど半分にしました。写真の数値(8bit)はいくつになるでしょう。',
-    hint: '8bit は真っ黒 0 から真っ白 255 までの 256段階。もとの数値は 255(真っ白)です。',
+    q: '3DCGソフトの中に、当たった光をぜんぶ返す白い板があります。まっすぐ平行なライトを正面から当てると、8bit で 255(真っ白)になりました。ライトの強さだけを半分にすると、数値はいくつになるでしょう。',
+    hint: '板は反射率 100%、当たった光をぜんぶ返す設定です。変えるのはライトの強さだけで、ほかは何もさわりません。聞いているのは画面に出る光ではなく、ファイルに保存される数値です(8bit は真っ黒 0 から真っ白 255 までの 256段階)。',
     choices: [
-      { v: '128', ok: false, why: 'ちょうど半分の数字ですが、実際はもっと大きな値になります。' },
-      { v: '188', ok: true, why: 'これが正解です。半分の光でも、数値は 74% までしか下がりません。' },
+      { v: '128', ok: false, why: 'ちょうど半分の数字ですが、保存される数値はもっと大きくなります。' },
+      { v: '188', ok: true, why: 'これが正解です。光は半分でも、保存される数値は約74%までしか下がりません。' },
       { v: '220', ok: false, why: '下がりかたが小さすぎます。' },
       { v: '64', ok: false, why: '4分の1にあたる数字です。下がりすぎです。' },
     ],
-    after: '光は半分(50%)。でも数値は 188 で、もとの 74% です。',
+    after: '光は半分(50%)。でも保存される数値は 188 で、もとの 255 の約74%です。',
   },
   {
-    q: 'では逆に、8bit の数値が 128(255段階のちょうどまん中)のとき、光の量はもとの何%でしょう。',
+    q: 'では逆に、ファイルに 8bit で 128(256段階のちょうどまん中)と保存されていました。もとの光の量は、真っ白(255)のときの何%でしょう。',
     hint: '段階のまん中 = 光のまん中、でしょうか。',
     choices: [
       { v: '50%', ok: false, why: '多くの人がこう答えます。でも実際はもっとずっと暗い光です。' },
@@ -32,7 +32,7 @@ const QUESTIONS = [
 export default function i02(mount) {
   const w = createWidget(mount, {
     title: '光を半分にすると、数値はいくつ?',
-    aim: '答えを予想してから確かめます。まちがえても大丈夫です。多くの人が同じところでつまずきます。ここでいう 8bit とは、真っ黒 0 から真っ白 255 までの 256段階のことです。',
+    aim: '答えを予想してから確かめます。まちがえても大丈夫です。多くの人が同じところでつまずきます。ここで聞くのは、画像のファイルに保存される数値です。8bit とは、真っ黒 0 から真っ白 255 までの 256段階のことです。',
   });
 
   const box = el('div', { class: 'quiz' });
@@ -67,7 +67,7 @@ export default function i02(mount) {
     }
     box.appendChild(el('p', { class: 'quiz-why', text: choice.why }));
     box.appendChild(makeProof(index));
-    w.say(`<b>${q.after}</b> 光の量と数値は、比例していません。`);
+    w.say(`<b>${q.after}</b> 光の量と、保存される数値は、比例していません。`);
     if (index < QUESTIONS.length - 1) {
       box.appendChild(button('つぎの問題', () => { index++; render(); }, 'btn-primary'));
     } else {
@@ -93,15 +93,21 @@ export default function i02(mount) {
         })]),
       ]);
     });
-    return el('div', { class: 'table-wrap' }, [
-      el('table', {}, [
-        el('thead', {}, [el('tr', {}, [
-          el('th', { class: 'num', text: '光の量' }),
-          el('th', { class: 'num', text: '数値(0〜1)' }),
-          el('th', { class: 'num', text: '8bit(0〜255)' }),
-          el('th', { text: '見た目' }),
-        ])]),
-        el('tbody', {}, rows),
+    return el('div', {}, [
+      el('p', {
+        class: 'quiz-hint',
+        text: '左が板に当たっている光の量、まん中と右がファイルに保存される数値です。「見た目」は、その数値を画面に出したときの色です。',
+      }),
+      el('div', { class: 'table-wrap' }, [
+        el('table', {}, [
+          el('thead', {}, [el('tr', {}, [
+            el('th', { class: 'num', text: '光の量(基準の白が100%)' }),
+            el('th', { class: 'num', text: '保存される数値(0〜1)' }),
+            el('th', { class: 'num', text: '同じものを8bitで(0〜255)' }),
+            el('th', { text: '見た目' }),
+          ])]),
+          el('tbody', {}, rows),
+        ]),
       ]),
     ]);
   }
